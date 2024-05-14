@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div th:include="~{common/header.html}"></div>
+<main class="site-main">
+    <section class="login_box_area section-margin">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-12">
+                    <div class="login_form_inner rounded">
+                        <h3 class="d-flex justify-content-center align-items-center flex-wrap">정보 수정</h3>
+                        <form class="row login_form mb-5" method="post" action="/login/login" id="frmLogin" >
+                            <input type="hidden" name="acc_url" value="/">
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="member_id" name="member_id" data-name="아이디" placeholder="아이디" onfocus="this.placeholder = ''" onblur="this.placeholder = '아이디'">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="member_name" name="member_name" data-name="이름" placeholder="이름" onfocus="this.placeholder = ''" onblur="this.placeholder = '이름'">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="password" class="form-control" id="password" data-name="password" name="password" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="password" class="form-control" id="password1" data-name="password1" name="password1" placeholder="비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호 확인'">
+                            </div>
+                            <span>
+                                    연락처
+                                </span>
+                            <div class="col-md-4 mb-4">
+                                <select class="form-control">
+                                    <option name="" id="1">010</option>
+                                    <option name="" id="2">011</option>
+                                    <option name="" id="3">012</option>
+                                    <option name="" id="4">013</option>
+                                    <option name="" id="5">014</option>
+                                    <option name="" id="6">015</option>
+                                    <option name="" id="7">016</option>
+                                    <option name="" id="8">017</option>
+                                    <option name="" id="9">018</option>
+                                    <option name="" id="0">019</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">-</div>
+                            <div class="col-md-3 mb-4">
+                                <input type="text" class="form-control" id="phone1" data-name="전화번호1" name="phone1">
+                            </div>
+                            <div class="col-md-1">-</div>
+                            <div class="col-md-3 mb-4">
+                                <input type="text" class="form-control" id="phone2" data-name="전화번호2" name="phone2">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control input-group" id="email1" data-name="이메일" name="email1" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="basic-addon1">@</span>
+                                <select class="form-control" aria-describedby="basic-addon1">
+                                    <option name="" id="11">naver.com</option>
+                                    <option name="" id="22">daum.net</option>
+                                    <option name="" id="33">hanmail.net</option>
+                                    <option name="" id="44">nate.com</option>
+                                    <option name="" id="55">gmail.com</option>
+                                    <option name="" id="66">직접 입력</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="email2" data-name="이메일2" name="email2" placeholder="직접 입력" onfocus="this.placeholder = ''" onblur="this.placeholder = '직접 입력'">
+                            </div>
+
+                            <div id="err_login" class="text-danger text-center col-md-12">
+
+                            </div>
+                            <div class="col-md-12">
+                                <button style="width:100%" class="btn btn-outline-success">수정하기 </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

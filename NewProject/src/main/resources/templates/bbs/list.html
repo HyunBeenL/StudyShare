@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<header  id="header" class="header fixed-top d-flex align-items-center">
+    <div class="main_menu full_wrap">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid container">
+                <button class="btn btn-outline-success me-2" type="button">마이 페이지</button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">오늘의 학습</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">나의 학습</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">공유 학습</button>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <span class="me-5 mt-1">이현빈</span>
+                        <button class="btn btn-sm btn-outline-secondary mw-2" type="button">로그아웃</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+<main class="site-main">
+    <section class="login_box_area section-margin">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- 기간 검색 조건 -->
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">기간</span>
+                        <input type="date" class="form-control" placeholder="시작일" aria-label="시작일">
+                        <span class="input-group-text">-</span>
+                        <input type="date" class="form-control" placeholder="종료일" aria-label="종료일">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">구분</span>
+                        <select class="form-control">
+                            <option name="" id="">제목</option>
+                            <option name="" id="">내용</option>
+                        </select>
+                        <span class="input-group-text">검색어</span>
+                        <input type="text" class="form-control" placeholder="시작일" aria-label="시작일">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-sm btn-outline-secondary mw-2" type="button">검색</button>
+                </div>
+                <div class="d-flex">
+                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="btnradio1">등록 순</label>
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btnradio2">좋아요 순</label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <div class="col-2 mb-2">
+                        <select name="page_size" class="form-select" onchange="modifyPageSize(this)">
+                            <option value="10">10개씩 보기</option>
+                            <option value="50">50개씩 보기</option>
+                            <option value="100">100개씩 보기</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <!-- 게시판 -->
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">NO</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">등록일</th>
+                            <th scope="col">좋아요</th>
+                            <th scope="col">오늘의 학습 노출여부</th>
+                            <th scope="col">오늘의 학습 노출기간</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- 게시물들을 여기에 동적으로 추가 -->
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>게시물 제목</td>
+                            <td>작성자</td>
+                            <td>날짜</td>
+                            <td>날짜</td>
+                            <td>날짜</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

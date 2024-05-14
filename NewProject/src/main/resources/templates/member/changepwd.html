@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div th:include="~{common/header.html}"></div>
+<main class="site-main ">
+    <section class="login_box_area section-margin">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-12">
+                    <div class="login_form_inner rounded">
+                        <h4 class="d-flex justify-content-center align-items-center flex-wrap">개인정보 보호를 위해 패스워드를 변경해주세요.</h4>
+                        <form class="row login_form mb-5 mt-5" method="post" action="/login/login" id="frmLogin" >
+                            <input type="hidden" name="acc_url" value="/">
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="password1" name="password1" data-name="이전 패스워드" placeholder="이전 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '이전 패스워드'">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="newpassword" name="newpassword" data-name="새 패스워드" placeholder="새 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 패스워드'">
+                            </div>
+                            <div class="col-md-12 mb-4">
+                                <input type="text" class="form-control" id="confirmpassword" name="confirmpassword" data-name="패스워드 확인" placeholder="패스워드 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '패스워드 확인'">
+                            </div>
+                            <div class="col-md-6 mt-5">
+                                <button style="width:100%" class="btn btn-outline-success">확인 </button>
+                            </div>
+                            <div class="col-md-6 mt-5">
+                                <button style="width:100%" class="btn btn-outline-secondary">취소 </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+</body>
+</html>
