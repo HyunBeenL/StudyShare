@@ -8,77 +8,80 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-<header  id="header" class="header fixed-top d-flex align-items-center">
-    <div class="main_menu full_wrap">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid container">
-                <button class="btn btn-outline-success me-2" type="button">마이 페이지</button>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">오늘의 학습</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">나의 학습</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">공유 학습</button>
-                        </li>
-                    </ul>
-                    <form class="d-flex">
-                        <span class="me-5 mt-1">이현빈</span>
-                        <button class="btn btn-sm btn-outline-secondary mw-2" type="button">로그아웃</button>
-                    </form>
-                </div>
-            </div>
-        </nav>
-    </div>
-</header>
+<div th:include="~{common/header.html}"></div>
 <main class="site-main">
     <section class="login_box_area section-margin">
         <div class="container mt-5">
-            <table class="table table-bordered">
+            <table class="table table-bordered table_up">
                 <tbody>
                 <tr>
-                    <td colspan="2">제목</td>
-                    <td colspan="3">제목입니다</td>
-                    <td colspan="2">좋아요</td>
-                    <td>0</td>
+                    <th colspan="2" style="background-color:#f1f6f7">제목</th>
+                    <td colspan="3" th:text="${boardDTO.bbs_title}">제목입니다</td>
+                    <th colspan="2" style="background-color:#f1f6f7">좋아요</th>
+                    <td th:text="${boardDTO.bbsGood}">제목입니다></td>
                 </tr>
                 <tr>
-                    <td colspan="3">등록일</td>
-                    <td colspan="3">오늘의 학습 노출 여부</td>
-                    <td colspan="3">오늘의 학습 노출기간</td>
+                    <th colspan="3" style="background-color:#f1f6f7">등록일</th>
+                    <th colspan="3" style="background-color:#f1f6f7">오늘의 학습 노출 여부</th>
+                    <th colspan="3" style="background-color:#f1f6f7">오늘의 학습 노출기간</th>
                 </tr>
                 <tr>
-                    <td colspan="3">날짜</td>
+                    <td colspan="3" th:text="${boardDTO.regDate}">날짜</td>
                     <td colspan="3">Y</td>
                     <td colspan="3">날짜2</td>
                 </tr>
                 <tr>
-                    <td colspan="5"><img src="" alt="대체 이미지" style="width:400px; height:600px;"></td>
-                    <td colspan="5"><div><div class=""><p>글 내용</p><p><br></p></div></div></td>
+                    <td colspan="4" style="height:600px;"><img th:src="'D:\\StudyShare\\NewProject\\src\\main\\resources\\upload\\'+${boardDTO.bbs_file}" alt="대체 이미지"></td>
+                    <td colspan="6"><div><div class=""><p th:text="${boardDTO.bbs_content}"></p><p><br></p></div></div></td>
                 </tr>
                 <tr>
-                    <td colspan="2">공유한 사람</td>
+                    <th colspan="2" style="background-color:#f1f6f7">공유한 사람</th>
                     <td colspan="7"><div>목록</div><button>공유하기</button></td>
                 </tr>
                 <tr>
-                    <td colspan="1">분야</td>
+                    <th colspan="1" style="background-color:#f1f6f7">분야</th>
                     <td colspan="4">한식입니다.</td>
-                    <td colspan="1">해시태그</td>
-                    <td colspan="3">#맛집</td>
+                    <th colspan="1" style="background-color:#f1f6f7">해시태그</th>
+                    <td colspan="3" th:text="${boardDTO.bbs_tag}"></td>
                 </tr>
                 </tbody>
             </table>
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/list'" style="width:80px;">목록</button>
+                <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/regist'" style="width:80px;">등록</button>
+                <button class="btn btn-sm btn-outline-success me-2" th:onclick="|location.href='@{/bbs/modify(bbsIdx=${boardDTO.bbsIdx})}'|" style="width:80px;">수정</button>
+                <button class="btn btn-sm btn-outline-success me-2" th:onclick="bbs_delete()" style="width:80px;">삭제</button>
+            </div>
         </div>
     </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    let idx = [[${boardDTO.bbsIdx}]];
+    function bbs_delete(){
+        if(confirm("정말 삭제하시겠습니까?")){
+            console.log("test");
+            $.ajax({
+                url:"/bbs/delete.dox",
+                dataType:"json",
+                type : "POST",
+                data : {
+                    idx:idx
+                },
+                success : function(data) {
+                    alert("성공적으로 삭제되었습니다.");
+                    location.replace("/bbs/list");
+                },
+                fail : function (data){
+                    alert("실패했습니다.");
+                }
+
+            });
+        }
+    }
+</script>
 </body>
 </html>

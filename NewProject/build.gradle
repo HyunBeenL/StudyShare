@@ -1,3 +1,8 @@
+buildscript {
+	ext{
+		queryDslVersion = "5.0.0"
+	}
+}
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.5'
@@ -36,8 +41,37 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	// https://mvnrepository.com/artifact/nz.net.ultraq.thymeleaf/thymeleaf-layout-dialect
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
+
+	//Querydsl 사용 설정 부분==============================>
+	implementation 'jakarta.annotation:jakarta.annotation-api'
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+
+	//Querydsl 사용 설정 부분==============================>
+
+	implementation 'org.modelmapper:modelmapper:3.2.0'
+	// https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
+	implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.2.5.Final'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Querydsl 사용 설정 부분 ==========================================>
+sourceSets {
+	main {
+		java {
+			srcDirs = [
+					"$projectDir/src/main/java", "$buildDir/generated/querydsl"
+			]
+		}
+	}
 }

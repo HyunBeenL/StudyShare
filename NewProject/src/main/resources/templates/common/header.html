@@ -2,25 +2,33 @@
     <div class="main_menu full_wrap">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid container">
-                <button class="btn btn-outline-success me-2" type="button">마이 페이지</button>
+                <button class="btn btn-outline-success me-2" type="button" onclick="location.href='/member/mypage'">마이 페이지</button>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">오늘의 학습</button>
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button" onclick="location.href='/'">오늘의 학습</button>
                         </li>
                         <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">나의 학습</button>
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button" onclick="location.href='/bbs/list'">나의 학습</button>
                         </li>
                         <li class="nav-item">
-                            <button class="btn btn-sm btn-outline-secondary me-2" type="button">공유 학습</button>
+                            <button class="btn btn-sm btn-outline-secondary me-2" type="button" onclick="location.href='/bbs/list'">공유 학습</button>
                         </li>
                     </ul>
                     <form class="d-flex">
-                        <span class="me-5 mt-1">이현빈</span>
-                        <button class="btn btn-sm btn-outline-secondary mw-2" type="button">로그아웃</button>
+                        <th:block th:if="${session.user_id !=null}">
+                            <span class="me-5 mt-1" th:text="${session.user_name}+'님 어서오세요.'"></span>
+                        </th:block>
+                        <th:block th:if="${session.user_id == null}">
+                            <button class="btn btn-sm btn-outline-success me-2" type="button" onclick="location.href='/member/login'">로그인</button>
+                            <button class="btn btn-sm btn-outline-success mw-2" type="button" onclick="location.href='/member/join'">회원가입</button>
+                        </th:block>
+                        <th:block th:if="${session.user_id != null}">
+                            <button class="btn btn-sm btn-outline-secondary mw-2" type="button" onclick="location.href='/member/logout'">로그아웃</button>
+                        </th:block>
                     </form>
                 </div>
             </div>
