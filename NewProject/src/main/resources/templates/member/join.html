@@ -93,6 +93,14 @@
     let email1 = document.querySelector("#email1");
     let email2 = document.querySelector("#email2");
 
+    let idconfirm = false;
+    memberId1.addEventListener('keypress', ()=>{
+        idconfirm = false;
+    });
+    memberId1.addEventListener('keyup', ()=>{
+        idconfirm = false;
+    });
+
         function emailchange(item) {
 
             let val = item.value;
@@ -106,18 +114,6 @@
             }
         }
 
-
-        // 아이디 중복확인 함수
-        function checkId() {
-            var memberId = document.getElementById('member_id').value.trim();
-
-            // 아이디 유효성 검사
-            if (memberId === '') {
-                alert('아이디를 입력하세요.');
-                return false;
-            }
-
-        }
 
         // 비밀번호 규칙 검사 함수
         function validatePassword(password) {
@@ -147,10 +143,22 @@
         var password = document.getElementById('password').value.trim();
         var password1 = document.getElementById('password1').value.trim();
         var email2 = document.getElementById('email2').value.trim();
+        var memberName = document.querySelector("#member_name").value.trim();
 
         // 아이디 중복확인
-        checkId();
 
+            if (memberId === '') {
+                alert('아이디를 입력하세요.');
+                return false;
+            }
+            if(!idconfirm){
+                alert('중복확인을 해주세요.');
+                return false;
+            }
+            if(memberName === ''){
+                alert('이름을 입력하세요.');
+                return false;
+            }
         // 비밀번호 유효성 검사
             if (password === '' || password1 === '') {
                 alert('비밀번호를 입력하세요.');
@@ -167,11 +175,11 @@
                 return false;
             }
 
-            // 이메일 유효성 검사
-            if (!validateEmail(email2)) {
-                alert('올바른 이메일 형식을 입력하세요.');
-                return false;
-            }
+            // // 이메일 유효성 검사
+            // if (!validateEmail(email2)) {
+            //     alert('올바른 이메일 형식을 입력하세요.');
+            //     return false;
+            // }
 
             return true;
         }
@@ -189,11 +197,12 @@
                     },
                     success : function(data) {
                     if(data.result == "success") {
-                        console.log("test");
                         alert(data.msg);
+                        idconfirm = true;
                     }else{
                         console.log("fail");
                         alert(data.msg);
+                        idconfirm=false;
                     }
                 },
                 fail : function (data){
@@ -202,6 +211,8 @@
 
             });
         }
+
+
 </script>
 </body>
 </html>

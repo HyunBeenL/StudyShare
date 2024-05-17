@@ -75,7 +75,7 @@ public class BoardPagingSearchImpl extends QuerydslRepositorySupport implements 
         QBoardEntity qBoard = QBoardEntity.boardEntity;
         QShareBbsEntity qShareBbs = QShareBbsEntity.shareBbsEntity;
 
-        JPQLQuery<BoardEntity> query = from(qBoard);
+        JPQLQuery<BoardEntity> query = from(qBoard).distinct();
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if ((requestDTO.getSearch_types() != null && requestDTO.getSearch_types().length > 0) && (requestDTO.getSearch_word() != null && requestDTO.getSearch_word().length() > 0)) {
             // type : t(제목), c(내용), u(사용자아이디)
