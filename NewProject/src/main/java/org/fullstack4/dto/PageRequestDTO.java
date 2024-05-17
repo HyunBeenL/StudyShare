@@ -61,6 +61,7 @@ public class PageRequestDTO {
     private String sort_type;
     private LocalDate search_date1;
     private LocalDate search_date2;
+    private String user_id;
 
     public void setTotal_count(int total_count) {
         this.total_count = total_count;
@@ -94,9 +95,9 @@ public class PageRequestDTO {
                 sb.append("&search_word="+ URLEncoder.encode(this.search_word));
 
             }
-            if(sort_type != null && !sort_type.isEmpty()){
-                sb.append("&sort_type="+URLEncoder.encode(sort_type));
-            }
+//            if(sort_type != null && !sort_type.isEmpty()){
+//                sb.append("&sort_type="+URLEncoder.encode(sort_type));
+//            }
             if(search_date1 != null && search_date2 !=null){
                 sb.append("&search_date1="+URLEncoder.encode(String.valueOf(search_date1)));
                 sb.append("&search_date2="+URLEncoder.encode(String.valueOf(search_date2)));

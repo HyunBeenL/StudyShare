@@ -23,21 +23,24 @@ public class BoardEntity extends BaseEntity {
     private String bbs_title;
     @Column(length = 20, nullable = false)
     private String bbs_content;
-    @Column(length = 20, nullable = false)
-    private String user_id;
+    @Column(name= "user_id" ,length = 20, nullable = false)
+    private String userId;
     @Column(length = 20, nullable = true)
     private String bbs_file;
     @Column(length = 20, nullable = true)
     private String bbs_tag;
     @Column(name="bbs_good", nullable = true)
     private int bbsGood;
-    private String bbs_exposure;
-    private LocalDate bbs_duration1;
-    private LocalDate bbs_duration2;
+    @Column(name="bbs_exposure", nullable = true)
+    private String bbsExposure;
+    @Column(name="bbs_duration1", nullable = true)
+    private LocalDate bbsDuration1;
+    @Column(name="bbs_duration2", nullable = true)
+    private LocalDate bbsDuration2;
     private String bbs_part;
-
+    private String fileorgname;
     public void modify(String user_id, String title, String content){
-        this.user_id = user_id;
+        this.userId = user_id;
         this.bbs_title = title;
         this.bbs_content = content;
         super.setModify_date(LocalDateTime.now());

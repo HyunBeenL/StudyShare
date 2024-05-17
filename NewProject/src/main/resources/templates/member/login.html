@@ -50,6 +50,36 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    var memberId = document.getElementById("member_id");
+    var password = document.getElementById("pwd");
+    memberId.addEventListener("input", function(event) {
+        var inputValue = event.target.value;
+        var regex = /^[a-z0-9]+$/;
+
+        if (!regex.test(inputValue)) {
+            if (inputValue === '' || event.data === null) {
+                return;
+            }
+            event.preventDefault();
+            alert("영어 소문자 및 숫자만 입력 가능합니다.");
+            event.target.value = inputValue.replace(/[^a-z0-9]/g, '');
+            return false;
+        }
+    });
+    password.addEventListener("input", function(event) {
+        var inputValue = event.target.value;
+        var regex = /^[a-zA-Z0-9!@#$%^&*()\-_=+[\]{};:'",.<>/?]+$/;
+
+        if (!regex.test(inputValue)) {
+            if (inputValue === '' || event.data === null) {
+                return;
+            }
+            event.preventDefault();
+            alert("영어+숫자+특수문자만 입력 가능합니다.");
+            event.target.value = inputValue.replace(/[^a-z0-9]/g, '');
+            return false;
+        }
+    });
     function login() {
         let frmData = $("form[name=frmLogin]").serialize();
         frmData = decodeURIComponent(frmData);
@@ -62,10 +92,12 @@
             },
             success : function(data) {
                 if(data.result == "success") {
-                    alert("성공적으로 로그인되었습니다.");
-                    location.replace("/");
+                    alert(data.msg);
+                    location.replace("/main");
+                }else if(data.result =="false"){
+                    alert(data.msg);
                 }else{
-                    alert("해당하는 정보가 없습니다.");
+                    alert(data.msg);
                 }
             },
             fail : function (data){

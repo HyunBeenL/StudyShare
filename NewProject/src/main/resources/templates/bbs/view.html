@@ -34,16 +34,35 @@
                     <td colspan="3">날짜2</td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="height:600px;"><img th:src="'D:\\StudyShare\\NewProject\\src\\main\\resources\\upload\\'+${boardDTO.bbs_file}" alt="대체 이미지"></td>
+                    <td colspan="4" style="height:600px; position: relative;"><img th:src="'/upload/'+${boardDTO.bbs_file}" alt="대체 이미지" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></td>
                     <td colspan="6"><div><div class=""><p th:text="${boardDTO.bbs_content}"></p><p><br></p></div></div></td>
                 </tr>
                 <tr>
-                    <th colspan="2" style="background-color:#f1f6f7">공유한 사람</th>
-                    <td colspan="7"><div>목록</div><button>공유하기</button></td>
+                    <th colspan="2" style="background-color:#f1f6f7">공유중인 사람</th>
+                    <td colspan="7">
+                        <div>
+                            <ul>
+                            <th:block th:each="list : ${shareList}">
+                                <li>
+                                    [[${list.response_name+' (' + list.responseId + ') 공유한 시간: (' + list.send_date + ')'}]]
+                                    <th:block th:if="${boardDTO.userId == session.user_id}">
+                                        <button type="button" class="btn-close" aria-label="Close" onclick="deletetest(this)" th:value="${list.idx}"></button>
+                                    </th:block>
+                                    <th:block th:if="${boardDTO.userId != session.user_id}">
+                                        <button type="button" class="btn-close" aria-label="Close" disabled onclick="deletetest(this)" th:value="${list.idx}"></button>
+                                    </th:block>
+                                </li>
+                            </th:block>
+                            </ul>
+                            <th:block th:if="${boardDTO.userId == session.user_id}">
+                                <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">공유하기</button>
+                            </th:block>
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <th colspan="1" style="background-color:#f1f6f7">분야</th>
-                    <td colspan="4">한식입니다.</td>
+                    <td colspan="4">[[${boardDTO.bbs_part}]]</td>
                     <th colspan="1" style="background-color:#f1f6f7">해시태그</th>
                     <td colspan="3" th:text="${boardDTO.bbs_tag}"></td>
                 </tr>
@@ -51,16 +70,46 @@
             </table>
             <div class="d-flex justify-content-end">
                 <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/list'" style="width:80px;">목록</button>
+                <th:block th:if="${boardDTO.userId == session.user_id}">
                 <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/regist'" style="width:80px;">등록</button>
                 <button class="btn btn-sm btn-outline-success me-2" th:onclick="|location.href='@{/bbs/modify(bbsIdx=${boardDTO.bbsIdx})}'|" style="width:80px;">수정</button>
                 <button class="btn btn-sm btn-outline-success me-2" th:onclick="bbs_delete()" style="width:80px;">삭제</button>
+                </th:block>
             </div>
         </div>
     </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                    <input type="text" name="idsearch" id="idsearch" maxlength="20">
+                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="popover" title="Popover title" onclick="search()">검색하기</button>
+                    </form>
+                    <hr>
+                    <h2 class="fs-5">검색 결과</h2>
+                    <ul class="member-list" id="searchList">
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" onclick="addShare()">추가하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     let idx = [[${boardDTO.bbsIdx}]];
+    console.log(idx);
+
     function bbs_delete(){
         if(confirm("정말 삭제하시겠습니까?")){
             console.log("test");
@@ -81,6 +130,101 @@
 
             });
         }
+    }
+
+    function search(){
+        let id = document.querySelector("#idsearch");
+        let searchList = document.querySelector("#searchList");
+        $.ajax({
+            url:"/member/searchId.dox",
+            dataType:"json",
+            type : "POST",
+            data : {
+                search_word:id.value,
+                page :0
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    alert(data.msg);
+                    console.log(data.responseDTO);
+                    let idxList = data.idxList;
+                    let idList = data.idList;
+                    let parsing ="";
+                    for(let i = 0; i<idList.length; i++){
+                        parsing +="<li><input type='checkbox' value="+idList[i]+" class='choice' name='response_id'>"+ idList[i]+"</li>";
+                    }
+                    searchList.innerHTML = parsing;
+                }else{
+                    alert(data.msg);
+                }
+
+            },
+            fail : function (data){
+                alert("실패했습니다.");
+            }
+
+        });
+    }
+
+    function deletetest(item){
+        console.log(item.value);
+        if(confirm("정말 공유를 취소하시겠습니까?")){
+            $.ajax({
+                url:"/bbs/shareDelete.dox",
+                dataType:"json",
+                type : "POST",
+                data : {
+                    idx:item.value
+                },
+                success : function(data) {
+                    alert("성공적으로 삭제되었습니다.");
+                    location.replace("/bbs/view?bbsIdx="+idx);
+                },
+                fail : function (data){
+                    alert("실패했습니다.");
+                }
+
+            });
+        }
+    }
+    function addShare(){
+        var check_list = [];
+        let choose = document.querySelectorAll(".choice");
+        for(let choice of choose){
+            if(choice.checked) {
+                check_list.push(choice.value);
+            }
+        }
+        console.log(check_list);
+        console.log(idx);
+        $.ajax({
+            url:"/bbs/bbsshare.dox",
+            dataType:"json",
+            type : "POST",
+            data : {
+                idList : JSON.stringify(check_list),
+                bbsIdx : idx
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    alert(data.msg);
+                    location.replace("/bbs/view?bbsIdx="+idx);
+                }else{
+                    alert(data.msg);
+                }
+
+            },
+            fail : function (data){
+                alert("실패했습니다.");
+            }
+
+        });
+    }
+
+</script>
+<script>
+    function openmodal(){
+
     }
 </script>
 </body>

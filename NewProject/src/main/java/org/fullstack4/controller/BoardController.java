@@ -12,6 +12,7 @@ import org.fullstack4.domain.BoardEntity;
 import org.fullstack4.dto.BoardDTO;
 import org.fullstack4.dto.PageRequestDTO;
 import org.fullstack4.dto.PageResponseDTO;
+import org.fullstack4.exception.InsufficientStockException;
 import org.fullstack4.service.BoardServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -38,7 +40,10 @@ public class BoardController {
 //                        @RequestParam(defaultValue = "") String[] search_types,
 //                        @RequestParam(defaultValue = "") String search_word,
 //                        @RequestParam(defaultValue = "regDate") String sort_type
-    public void bbsList(@Valid PageRequestDTO pageRequestDTO, Model model){
+    public void bbsList(@Valid PageRequestDTO pageRequestDTO, Model model,HttpServletRequest request){
+        HttpSession session = request.getSession();
+        String user_id = session.getAttribute("user_id").toString();
+        pageRequestDTO.setUser_id(user_id);
 
         PageResponseDTO<BoardDTO> responseDTO = boardService.bbsListByPage(pageRequestDTO);
         log.info("responseDTO : {}", responseDTO);
@@ -47,22 +52,40 @@ public class BoardController {
 
     }
 
+    @GetMapping("/sharelist")
+    public void sharelist(@Valid PageRequestDTO pageRequestDTO, Model model,HttpServletRequest request){
+        HttpSession session = request.getSession();
+        String user_id = session.getAttribute("user_id").toString();
+        pageRequestDTO.setUser_id(user_id);
+        PageResponseDTO<BoardDTO> dto = boardService.shareBbsListByPage(pageRequestDTO);
+        log.info("responseDTO : {}", dto);
+        model.addAttribute("responseDTO", dto);
+
+    }
+
     @GetMapping("/view")
     public void bbsView(@RequestParam int bbsIdx, Model model){
         BoardDTO boardDTO = boardService.view(bbsIdx);
+        List<BoardDTO> shareList = boardService.shareList(bbsIdx);
+        log.info("shareList : {}", shareList);
+        model.addAttribute("shareList", shareList);
         model.addAttribute("boardDTO", boardDTO);
     }
 
     @GetMapping("/modify")
     public void bbsModify(@RequestParam int bbsIdx, Model model){
         BoardDTO boardDTO = boardService.view(bbsIdx);
+        String[] partlist = boardDTO.getBbs_part().split(",");
+        String[] taglist = boardDTO.getBbs_tag().split(",");
         model.addAttribute("boardDTO", boardDTO);
+        model.addAttribute("partlist", Arrays.asList(partlist));
+        model.addAttribute("taglist", Arrays.asList(taglist));
     }
 
     @PostMapping("/modify")
     public String PostBbsModify(BoardDTO boardDTO, Model model,HttpServletRequest req){
         HttpSession session = req.getSession();
-        boardDTO.setUser_id(session.getAttribute("user_id").toString());
+        boardDTO.setUserId(session.getAttribute("user_id").toString());
         int idx =boardService.modify(boardDTO);
         if(idx == boardDTO.getBbsIdx()) {
             return "redirect:/bbs/view?bbsIdx=" + idx;
@@ -83,11 +106,12 @@ public class BoardController {
                                 HttpServletRequest req){
 
 
-        String directory= "D:\\StudyShare\\NewProject\\src\\main\\resources\\upload";
+        String directory= "D:\\StudyShare\\NewProject\\src\\main\\resources\\static\\upload";
         HttpSession session = req.getSession();
-        boardDTO.setUser_id(session.getAttribute("user_id").toString());
+        boardDTO.setUserId(session.getAttribute("user_id").toString());
         Map<String, String> map = FileUtil.FileUpload(bbs_file1,directory);
         boardDTO.setBbs_file(map.get("newName").toString());
+        boardDTO.setFileorgname(map.get("orgName").toString());
         int idx = boardService.regist(boardDTO);
         if(idx>0) {
             return "redirect:/bbs/view?bbsIdx=" + idx;
@@ -102,6 +126,47 @@ public class BoardController {
         HashMap<String, Object> resultMap = new HashMap<>();
         int idx = Integer.parseInt(map.get("idx").toString());
         boardService.delete(idx);
+        return new Gson().toJson(resultMap);
+    }
+
+    @RequestMapping(value = "/shareDelete.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String bbsShareDelete(@RequestParam HashMap<String, Object> map) throws Exception{
+        HashMap<String, Object> resultMap = new HashMap<>();
+        int idx = Integer.parseInt(map.get("idx").toString());
+        boardService.shareDelete(idx);
+        return new Gson().toJson(resultMap);
+    }
+
+
+    @RequestMapping(value = "/bbsshare.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String bbsShare(@RequestParam HashMap<String, Object> map,HttpServletRequest req) throws Exception{
+        HashMap<String, Object> resultMap = new HashMap<>();
+        HttpSession session = req.getSession();
+        String idList = map.get("idList").toString();
+        int bbsIdx = Integer.parseInt(map.get("bbsIdx").toString());
+
+        log.info("bbsIdx = " + bbsIdx);
+
+        idList = idList.replace("\"","");
+        idList = idList.replace("[","");
+        idList = idList.replace("]","");
+
+        String[] userIdList = idList.split(",");
+        String myId = session.getAttribute("user_id").toString();
+
+        try{
+            boardService.share(myId,userIdList,bbsIdx);
+            resultMap.put("result","success");
+            resultMap.put("msg","공유 목록이 추가됬습니다.");
+        }catch(InsufficientStockException e){
+            resultMap.put("result","fail");
+            resultMap.put("msg", e.getMessage());
+        }
+
+
+
         return new Gson().toJson(resultMap);
     }
 }

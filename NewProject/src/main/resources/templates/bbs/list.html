@@ -41,10 +41,10 @@
                 </form>
                 <div class="d-flex">
                     <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" onclick="sortpage(this)" value="regDate">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" onclick="sortpage(this)" value="regDate" th:checked="${responseDTO.sort_type == 'regDate' || responseDTO.sort_type == null}">
                         <label class="btn btn-outline-primary" for="btnradio1">등록 순</label>
 <!--                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" th:onclick="|location.href='@{/bbs/list(page=0,sort_type=bbsGood,${responseDTO.linkParams})}'|" th:checked="${responseDTO.sort_type == 'bbsGood'}" value="bbsGood">-->
-                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="sortpage(this)" value="bbsGood">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="sortpage(this)" value="bbsGood" th:checked="${responseDTO.sort_type == 'bbsGood'}">
                         <label class="btn btn-outline-primary" for="btnradio2">좋아요 순</label>
                     </div>
                 </div>
@@ -75,33 +75,50 @@
                         </thead>
                         <tbody>
                         <!-- 게시물들을 여기에 동적으로 추가 -->
-                        <th:block th:each="list : ${responseDTO.dtolist}">
-                        <tr>
-                            <th scope="row">1</th>
-                            <td><a class = "text-dark" th:href="'/bbs/view?bbsIdx='+${list.bbsIdx}"><p th:text="${list.bbs_title}"></p></a></td>
-                            <td th:text="${list.user_id}"></td>
-                            <td th:text="${list.regDate}"></td>
-                            <td th:text="${list.bbsGood}"></td>
-                            <td>날짜</td>
-                            <td>날짜</td>
-                        </tr>
-                        </th:block>
+                            <th:block th:each="list, iterStat : ${responseDTO.dtolist}">
+                                <th:block th:with="totalcount=${responseDTO.total_count - iterStat.count - responseDTO.page_skip_count+1}">
+                                    <tr>
+                                        <th scope="row">[[${totalcount}]]</th>
+                                        <td><a class = "text-dark" th:href="'/bbs/view?bbsIdx='+${list.bbsIdx}"><p th:text="${list.bbs_title}"></p></a></td>
+                                        <td th:text="${list.userId}"></td>
+                                        <td th:text="${list.regDate}"></td>
+                                        <td th:text="${list.bbsGood}"></td>
+                                        <td>[[${list.bbsExposure}]]</td>
+                                        <td>[[${list.bbsDuration1}]]~[[${list.bbsDuration2}]]</td>
+                                    </tr>
+                                </th:block>
+                            </th:block>
                         </tbody>
                     </table>
                 </div>
             </div>
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Previous">
+                    <th:block th:if="${responseDTO.prev_page_plag == false}">
+                        <li class="page-item disabled">
+                    </th:block>
+                    <th:block th:if="${responseDTO.prev_page_plag == true}">
+                        <li class="page-item">
+                    </th:block>
+                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}-10)+${responseDTO.linkParams}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     <th:block th:each="number : ${#numbers.sequence(responseDTO.page_block_start, responseDTO.page_block_end)}">
-                    <li class="page-item"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                        <th:block th:if="(${number}-1) == ${responseDTO.page}">
+                            <li class="page-item active"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                        </th:block>
+                        <th:block th:if="(${number}-1) != ${responseDTO.page}">
+                            <li class="page-item"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                        </th:block>
                     </th:block>
-                    <li class="page-item">
-                        <a class="page-link" href="#" aria-label="Next">
+                    <th:block th:if="${responseDTO.next_page_plag == false}">
+                        <li class="page-item disabled">
+                    </th:block>
+                    <th:block th:if="${responseDTO.next_page_plag == true}">
+                        <li class="page-item">
+                    </th:block>
+                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}+10)+${responseDTO.linkParams}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>

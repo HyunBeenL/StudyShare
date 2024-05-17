@@ -26,6 +26,7 @@ public class PageResponseDTO<E> {
     private String search_word;
     private String linkParams;
     private String sort_type;
+    private String user_id;
 
     List<E> dtolist;
 

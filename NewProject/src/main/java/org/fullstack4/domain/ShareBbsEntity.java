@@ -17,10 +17,13 @@ public class ShareBbsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private int idx;
-    private int bbs_idx;
-    private String request_id;
+    @Column (name="bbs_idx")
+    private int bbsIdx;
+    @Column (name="request_id")
+    private String requestId;
     private String request_name;
-    private String response_id;
+    @Column (name="response_id")
+    private String responseId;
     private String response_name;
     private LocalDateTime send_date;
 }

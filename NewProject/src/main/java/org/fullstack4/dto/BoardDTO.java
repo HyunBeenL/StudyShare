@@ -16,20 +16,21 @@ public class BoardDTO {
     private int bbsIdx;
     private String bbs_title;
     private String bbs_content;
-    private String user_id;
+    private String userId;
     private LocalDateTime regDate;
     private String bbs_file;
-    private String bbs_exposure;
-    private LocalDate bbs_duration1;
-    private LocalDate bbs_duration2;
+    private String fileorgname;
+    private String bbsExposure;
+    private LocalDate bbsDuration1;
+    private LocalDate bbsDuration2;
     private LocalDateTime modify_date;
     private String bbs_tag;
     private String bbs_part;
     private int bbsGood;
 
-    private String request_id;
+    private String requestId;
     private String request_name;
-    private String response_id;
+    private String responseId;
     private String response_name;
     private LocalDateTime send_date;
 }

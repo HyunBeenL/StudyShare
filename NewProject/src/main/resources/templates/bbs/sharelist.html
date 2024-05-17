@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div th:include="~{common/header.html}"></div>
+<main class="site-main">
+    <section class="login_box_area section-margin">
+        <div class="container mt-5">
+            <div class="row">
+                <form action="/bbs/sharelist" method="get" name="searchFrm">
+                    <div class="col-md-6">
+                        <!-- 기간 검색 조건 -->
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">기간</span>
+                            <input type="date" class="form-control" name="search_date1" placeholder="시작일" aria-label="시작일">
+                            <span class="input-group-text">-</span>
+                            <input type="date" class="form-control" name="search_date2" placeholder="종료일" aria-label="종료일">
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">구분</span>
+                            <select class="form-control" name="search_type">
+                                <option value="t">제목</option>
+                                <option value="c">내용</option>
+                            </select>
+                            <span class="input-group-text">검색어</span>
+                            <input type="text" class="form-control" name="search_word">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-sm btn-outline-secondary mw-2" type="submit">검색</button>
+                    </div>
+                </form>
+                <div class="d-flex">
+                    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" onclick="sortpage(this)" value="me" th:checked="${responseDTO.sort_type == 'me' || responseDTO.sort_type == null}">
+                        <label class="btn btn-outline-primary" for="btnradio1">내가 공유한 학습</label>
+                        <!--                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" th:onclick="|location.href='@{/bbs/list(page=0,sort_type=bbsGood,${responseDTO.linkParams})}'|" th:checked="${responseDTO.sort_type == 'bbsGood'}" value="bbsGood">-->
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="sortpage(this)" value="you" th:checked="${responseDTO.sort_type == 'you'}">
+                        <label class="btn btn-outline-primary" for="btnradio2">내가 공유받은 학습</label>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <div class="col-2 mb-2">
+                        <select name="page_size" class="form-select" onchange="changePageSize(this)">
+                            <option value="10" th:selected="${responseDTO.page_size == 10}">10개씩 보기</option>
+                            <option value="30" th:selected="${responseDTO.page_size == 30}">30개씩 보기</option>
+                            <option value="50" th:selected="${responseDTO.page_size == 50}">50개씩 보기</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <!-- 게시판 -->
+                    <table class="table table-hover border-bottom">
+                        <thead class="filter-bar">
+                        <tr>
+                            <th scope="col">NO</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">작성자</th>
+                            <th scope="col">등록일</th>
+                            <th scope="col">좋아요</th>
+                            <th scope="col">오늘의 학습 노출여부</th>
+                            <th scope="col">오늘의 학습 노출기간</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- 게시물들을 여기에 동적으로 추가 -->
+                        <th:block th:each="list, iterStat : ${responseDTO.dtolist}">
+                            <th:block th:with="totalcount=${responseDTO.total_count - iterStat.count - responseDTO.page_skip_count+1}">
+                                <tr>
+                                    <th scope="row">[[${totalcount}]]</th>
+                                    <td><a class = "text-dark" th:href="'/bbs/view?bbsIdx='+${list.bbsIdx}"><p th:text="${list.bbs_title}"></p></a></td>
+                                    <td th:text="${list.userId}"></td>
+                                    <td th:text="${list.regDate}"></td>
+                                    <td th:text="${list.bbsGood}"></td>
+                                    <td>[[${list.bbsExposure}]]</td>
+                                    <td>[[${list.bbsDuration1}]]~[[${list.bbsDuration2}]]</td>
+                                </tr>
+                            </th:block>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <th:block th:if="${responseDTO.prev_page_plag == false}">
+                        <li class="page-item disabled">
+                    </th:block>
+                    <th:block th:if="${responseDTO.prev_page_plag == true}">
+                        <li class="page-item">
+                    </th:block>
+                    <a class="page-link" th:href="'/bbs/sharelist?page='+(${responseDTO.page_block_start}-10)+${responseDTO.linkParams}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                    </li>
+                    <th:block th:each="number : ${#numbers.sequence(responseDTO.page_block_start, responseDTO.page_block_end)}">
+                        <th:block th:if="(${number}-1) == ${responseDTO.page}">
+                            <li class="page-item active"><a class="page-link" th:href="'/bbs/sharelist?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                        </th:block>
+                        <th:block th:if="(${number}-1) != ${responseDTO.page}">
+                            <li class="page-item"><a class="page-link" th:href="'/bbs/sharelist?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                        </th:block>
+                    </th:block>
+                    <th:block th:if="${responseDTO.next_page_plag == false}">
+                        <li class="page-item disabled">
+                    </th:block>
+                    <th:block th:if="${responseDTO.next_page_plag == true}">
+                        <li class="page-item">
+                    </th:block>
+                    <a class="page-link" th:href="'/bbs/sharelist?page='+(${responseDTO.page_block_start}+10)+${responseDTO.linkParams}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-sm btn-outline-success mw-2" onclick="location.href='/bbs/regist'" style="width:100px;">등록</button>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    var link = [[${responseDTO.linkParams}]];
+    function changePageSize(item){
+        let pageSize= item.value;
+        let url = '/bbs/sharelist?page=0&page_size=' + pageSize + link;
+        location.href=url;
+    }
+
+    function sortpage(item){
+        let sortType=item.value
+        let url = '/bbs/sharelist?page=0&sort_type=' + sortType + link;
+        location.href=url;
+    }
+</script>
+</body>
+</html>

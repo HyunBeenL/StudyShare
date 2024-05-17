@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
 <div th:include="~{common/header.html}"></div>
@@ -17,22 +18,24 @@
                 <div class="col-lg-6 col-md-8 col-sm-12">
                     <div class="login_form_inner rounded">
                         <h4 class="d-flex justify-content-center align-items-center flex-wrap">개인정보 보호를 위해 패스워드를 변경해주세요.</h4>
-                        <form class="row login_form mb-5 mt-5" method="post" action="/login/login" id="frmLogin" >
-                            <input type="hidden" name="acc_url" value="/">
+                        <form class="row login_form mb-5 mt-5" method="post" action="/member/changepwd" id="frmLogin" onsubmit="return validateForm()">
+                            <input type="hidden" name="user_id" th:value="${id}">
                             <div class="col-md-12 mb-4">
-                                <input type="text" class="form-control" id="password1" name="password1" data-name="이전 패스워드" placeholder="이전 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '이전 패스워드'">
+                                <input type="password" class="form-control" id="password1" name="password1" data-name="이전 패스워드" placeholder="이전 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '이전 패스워드'" onkeyup="myPwdCheck()">
                             </div>
                             <div class="col-md-12 mb-4">
-                                <input type="text" class="form-control" id="newpassword" name="newpassword" data-name="새 패스워드" placeholder="새 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 패스워드'">
+                                <input type="password" class="form-control" id="newpassword" name="newpassword" data-name="새 패스워드" placeholder="새 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 패스워드'">
+                                <span class="txtSub" id="pwderr"></span>
                             </div>
                             <div class="col-md-12 mb-4">
-                                <input type="text" class="form-control" id="confirmpassword" name="confirmpassword" data-name="패스워드 확인" placeholder="패스워드 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '패스워드 확인'">
+                                <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" data-name="패스워드 확인" placeholder="패스워드 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '패스워드 확인'">
+                                <span class="txtSub" id="pwdequal"></span>
                             </div>
                             <div class="col-md-6 mt-5">
-                                <button style="width:100%" class="btn btn-outline-success">확인 </button>
+                                <button style="width:100%" type="submit" class="btn btn-outline-success">확인 </button>
                             </div>
                             <div class="col-md-6 mt-5">
-                                <button style="width:100%" class="btn btn-outline-secondary">취소 </button>
+                                <button style="width:100%" type="button" class="btn btn-outline-secondary">취소 </button>
                             </div>
                         </form>
                     </div>
@@ -42,6 +45,114 @@
     </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script th:inline="javascript">
 
+    var myId=[[${id}]];
+    let mypwdCheck = false;
+    let pwdequal = false;
+    let pwdvaild = false;
+
+    let pwderr = document.querySelector('#pwderr');
+    let pwderr2 = document.querySelector("#pwdequal");
+    let password1 = document.querySelector("#password1");
+    let pwd = document.querySelector("#newpassword");
+    let pwd2 = document.querySelector("#confirmpassword");
+
+    function validateForm() {
+        if(mypwdCheck == false){
+            alert("현재 비밀번호가 일치하지 않습니다.");
+            return false;
+        }else if(pwdvaild == false){
+            alert("비밀번호 형식이 맞지 않습니다.")
+            return false;
+        }else if(pwdequal == false){
+            alert("비밃번호 확인이 일치하지 않습니다.");
+            return false;
+        }
+        return true;
+
+    }
+
+    var pwdcheck = function() {
+        if (pwd.value.match(/[a-zA-Z]/g) == null
+            || pwd.value.match(/[0-9]/g) == null
+            || pwd.value.match(/[\W_]/g) == null
+            || pwd.value.length < 8 || pwd.value.length > 16) {
+            pwderr.innerHTML = "<strong>&nbsp;&nbsp;&nbsp;8글자~16글자이내 영어/숫자/특수문자를 최소 하나씩넣어서 작성해주세요</strong>"
+            pwderr.style.color = "red";
+            pwd.classList.remove("is-valid");
+            pwd.classList.add("is-invalid");
+            pwdvaild = false;
+        } else if (pwd.value.trim() == "" || pwd.value.trim() == null) {
+            pwdvaild = false;
+        } else {
+            pwderr.innerHTML = "<strong>&nbsp;&nbsp;&nbsp;올바른 비밀번호입니다.";
+            pwd.classList.remove("is-invalid");
+            pwd.classList.add("is-valid");
+            pwderr.style.color = "green";
+            pwdvaild = true;
+        }
+    }
+    var pwdequal1 = function(){
+        if(pwd.value !== pwd2.value){
+            pwderr2.innerHTML = "<strong>&nbsp;&nbsp;&nbsp;비밀번호가 일치하지 않습니다.</strong>"
+            pwderr2.style.color = "red";
+            pwd2.classList.remove("is-valid");
+            pwd2.classList.add("is-invalid");
+            pwdequal = false;
+        }
+        else if(pwd2.value.trim() == "" || pwd2.value.trim() == null){
+            pwdequal = false;
+            pwd.classList.remove("is-valid");
+            pwd.classList.add("is-invalid");
+            pwderr2.innerText = "비밀번호를 다시한번 입력해주세요";
+            pwderr2.style.color = "red";
+        }
+        else{
+            pwderr2.innerHTML = "<strong>&nbsp;&nbsp;&nbsp;비밀번호가 일치합니다.</strong>";
+            pwderr2.style.color = "green";
+            pwd2.classList.remove("is-invalid");
+            pwd2.classList.add("is-valid");
+            pwdequal = true;
+        }
+    }
+
+    function myPwdCheck(){
+        $.ajax({
+            url:"/member/findpwd.dox?user_id="+myId,
+            dataType:"json",
+            type : "POST",
+            data : {
+
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    if(data.pwd == password1.value) {
+                        password1.classList.remove("is-invalid");
+                        password1.classList.add("is-valid");
+                        mypwdCheck = true;
+
+                    }else{
+                        password1.classList.remove("is-valid");
+                        password1.classList.add("is-invalid");
+                        mypwdCheck = false;
+                    }
+                }
+            },
+            fail : function (data){
+
+            }
+
+        });
+
+    }
+
+    pwd.addEventListener("keyup", pwdcheck);
+    pwd.addEventListener("keypress", pwdcheck);
+    pwd.addEventListener("keyup", pwdequal1);
+    pwd.addEventListener("keypress", pwdequal1);
+    pwd2.addEventListener("keyup", pwdequal1);
+    pwd2.addEventListener("keypress", pwdequal1);
+</script>
 </body>
 </html>

@@ -6,13 +6,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.fullstack4.domain.MemberEntity;
 import org.fullstack4.dto.MemberDTO;
+import org.fullstack4.dto.PageRequestDTO;
+import org.fullstack4.dto.PageResponseDTO;
 import org.fullstack4.exception.InsufficientStockException;
 import org.fullstack4.repository.MemberRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -24,13 +31,34 @@ public class MemberServiceImpl implements MemberService {
     private final ModelMapper modelMapper;
 
     @Override
-    public boolean login(String id,String pwd,HttpServletRequest req) {
+    @Transactional(rollbackFor = {InsufficientStockException.class, Exception.class})
+    public boolean login(String id,String pwd,HttpServletRequest req) throws InsufficientStockException {
         HttpSession session = req.getSession();
         MemberEntity member = memberRepository.findByUserId(id);
+        if(id.equals("") || id == null){
+            throw new InsufficientStockException("아이디를 입력하세요.");
+        }
+        if(pwd.equals("") || pwd == null){
+            throw new InsufficientStockException("비밀번호를 입력하세요.");
+        }
+        if(member == null) {
+            throw new InsufficientStockException("해당하는 정보가 없습니다.");
+        }
+        if(member.getLastlogin_date() != null) {
+            LocalDateTime now = LocalDateTime.now();
+            long monthsDifference = ChronoUnit.MONTHS.between(member.getLastlogin_date(),now );
+            log.info("monthsDifference:{}",monthsDifference);
+            if(monthsDifference >= 6){
+                throw new InsufficientStockException("마지막으로 로그인한지 6개월 이상된 계정입니다. 관리자에게 문의하세요.");
+            }
+        }
+
         if(member.getLogincount() >= 5){
-            return false;
+            throw new InsufficientStockException("비밀번호를 5회 이상 틀린 계정입니다. 관리자에게 문의하세요.");
         }else {
             if (member.getUser_pwd().equals(pwd)) {
+
+
                 session.setAttribute("user_id", id);
                 session.setAttribute("user_name", member.getUser_name());
 
@@ -59,6 +87,9 @@ public class MemberServiceImpl implements MemberService {
         if(memberDTO.getUserId() == null || memberDTO.getUserId().trim().equals("")){
             throw new InsufficientStockException("아이디를 입력해주세요.");
         }
+        if(memberDTO.getUser_pwd() == null || memberDTO.getUser_pwd().trim().equals("")){
+            throw new InsufficientStockException("비밀번호를 입력해주세요.");
+        }
         MemberEntity memberEntity = modelMapper.map(memberDTO, MemberEntity.class);
         memberRepository.save(memberEntity);
 
@@ -75,8 +106,15 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void pwdmodify(String id, String pwd) {
+    public int pwdmodify(String id, String pwd) {
 
+        MemberEntity memberentity = memberRepository.findByUserId(id);
+        MemberDTO memberDTO = modelMapper.map(memberentity, MemberDTO.class);
+        memberDTO.setUser_pwd(pwd);
+        MemberEntity member = modelMapper.map(memberDTO, MemberEntity.class);
+
+        int memidx = memberRepository.save(member).getUser_idx();
+        return memidx;
     }
 
     @Override
@@ -95,5 +133,41 @@ public class MemberServiceImpl implements MemberService {
         MemberEntity member = memberRepository.findByUserId(id);
         MemberDTO memberDTO = modelMapper.map(member, MemberDTO.class);
         return memberDTO;
+    }
+
+    @Override
+    public PageResponseDTO<MemberDTO> search(PageRequestDTO pageRequestDTO) {
+        PageRequest pageable = PageRequest.of(pageRequestDTO.getPage(), pageRequestDTO.getPage_size());
+        Page<MemberEntity> result = memberRepository.search(pageable, pageRequestDTO.getSearch_word());
+
+        List<MemberDTO> memberDTOList = result.toList().stream()
+                .map(entity ->modelMapper.map(entity, MemberDTO.class))
+                .collect(Collectors.toList());
+
+        PageResponseDTO<MemberDTO> responseDTO = PageResponseDTO.<MemberDTO>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .dtoList(memberDTOList)
+                .total_count((int)result.getTotalElements())
+                .build();
+
+        return responseDTO;
+    }
+
+    @Override
+    public int checkId(String id) {
+        MemberEntity member = memberRepository.findByUserId(id);
+        if(member == null) {
+
+            return 0;
+        }else{
+
+            return 1;
+        }
+
+    }
+
+    @Override
+    public int checkEmail(String email) {
+        return 0;
     }
 }
