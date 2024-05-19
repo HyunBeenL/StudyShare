@@ -98,7 +98,14 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void modify(MemberDTO memberDTO) {
         int idx = memberRepository.findByUserId(memberDTO.getUserId()).getUser_idx();
+        String orgpwd = memberRepository.findById(idx).get().getUser_pwd();
+        String pwd = memberDTO.getUser_pwd();
         memberDTO.setUser_idx(idx);
+        if(pwd != null && !pwd.equals("")){
+            memberDTO.setUser_pwd(pwd);
+        }else{
+            memberDTO.setUser_pwd(orgpwd);
+        }
         MemberEntity memberEntity = modelMapper.map(memberDTO, MemberEntity.class);
         memberEntity.setModify_date(LocalDateTime.now());
         memberRepository.save(memberEntity);
@@ -154,8 +161,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public int checkId(String id) {
+    @Transactional(rollbackFor = {InsufficientStockException.class, Exception.class})
+    public int checkId(String id) throws InsufficientStockException{
+        if(id == null || id.trim().equals("")){
+            throw new InsufficientStockException("아이디를 입력해주세요.");
+        }
         MemberEntity member = memberRepository.findByUserId(id);
+
         if(member == null) {
 
             return 0;
@@ -167,7 +179,16 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public int checkEmail(String email) {
-        return 0;
+    @Transactional(rollbackFor = {InsufficientStockException.class, Exception.class})
+    public int checkEmail(String email1, String email2) throws InsufficientStockException {
+        if(email1 == null || email2 == null || email1.trim().equals("") || email2.trim().equals("")){
+            throw new InsufficientStockException("이메일을 입력해주세요.");
+        }
+        MemberEntity member = memberRepository.findByUserEmail1AndUserEmail2(email1,email2);
+        if(member == null) {
+            return 0;
+        }else{
+            return 1;
+        }
     }
 }

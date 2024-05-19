@@ -48,14 +48,14 @@
                         </div>
                         <div class="col-md-1">-</div>
                         <div class="col-md-3 mb-4">
-                            <input type="text" class="form-control" id="phone1" data-name="전화번호1" name="user_phone2">
+                            <input type="text" class="form-control" id="phone1" data-name="전화번호1" name="user_phone2" maxlength="4">
                         </div>
                         <div class="col-md-1">-</div>
                         <div class="col-md-3 mb-4">
-                            <input type="text" class="form-control" id="phone2" data-name="전화번호2" name="user_phone3">
+                            <input type="text" class="form-control" id="phone2" data-name="전화번호2" name="user_phone3" maxlength="4">
                         </div>
                         <div class="col-md-12 mb-4 input-group mb-3">
-                            <input type="text" class="form-control input-group" id="email1" data-name="이메일" name="user_email1" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
+                            <input type="text" class="form-control input-group" id="email1" data-name="이메일" name="userEmail1" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
                             <button class="btn btn-outline-secondary" type="button" id="EmailCheckBtn" onclick="checkedEmail()">중복확인</button>
                         </div>
                         <div class="input-group mb-3">
@@ -70,7 +70,7 @@
                             </select>
                         </div>
                         <div class="col-md-12 mb-4">
-                            <input type="text" class="form-control" id="email2" data-name="이메일2" name="user_email2" placeholder="직접 입력" onfocus="this.placeholder = ''" onblur="this.placeholder = '직접 입력'" readonly>
+                            <input type="text" class="form-control" id="email2" data-name="이메일2" name="userEmail2" placeholder="직접 입력" onfocus="this.placeholder = ''" onblur="this.placeholder = '직접 입력'" readonly>
                         </div>
 
                         <div id="err_login" class="text-danger text-center col-md-12">
@@ -94,11 +94,40 @@
     let email2 = document.querySelector("#email2");
 
     let idconfirm = false;
+    let emailconfirm = false;
+
+
+        // 숫자만 입력되도록 하는 함수
+        function allowOnlyNumbers(event) {
+        // 입력된 값
+            var inputValue = event.target.value;
+        // 입력된 값이 숫자가 아니면
+            if (isNaN(inputValue)) {
+                // 숫자가 아닌 문자를 제거하고 숫자만 남기기
+                event.target.value = inputValue.replace(/[^\d]/g, '');
+            }
+        }
+
+        // 전화번호 입력란의 입력 이벤트 감지
+        document.getElementById('phone1').addEventListener('input', allowOnlyNumbers);
+        document.getElementById('phone2').addEventListener('input', allowOnlyNumbers);
+
+
     memberId1.addEventListener('keypress', ()=>{
         idconfirm = false;
     });
     memberId1.addEventListener('keyup', ()=>{
         idconfirm = false;
+    });
+    email1.addEventListener('onchange', ()=>{
+        emailconfirm = false;
+    });
+
+    email2.addEventListener('keypress', ()=>{
+        emailconfirm = false;
+    });
+    email2.addEventListener('keyup', ()=>{
+        emailconfirm = false;
     });
 
         function emailchange(item) {
@@ -114,10 +143,31 @@
             }
         }
 
+        //아이디 규칙 검사 함수
+        function vaildateId(id){
+            var IdPattern = /^(?=.*[a-z])(?=.*\d)[a-z\d]{8,12}$/;
+
+            if(!IdPattern.test(id)){
+                return false;
+            }
+
+            return true;
+        }
+
+
+    function vaildateName(name){
+        var NamePattern = /^[가-힣]{1,5}$|^[a-zA-Z]{1,10}$/;
+
+        if(!NamePattern.test(name)){
+            return false;
+        }
+
+        return true;
+    }
 
         // 비밀번호 규칙 검사 함수
         function validatePassword(password) {
-            var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/;
+            var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$/;
 
             if (!passwordPattern.test(password)) {
                 return false;
@@ -142,9 +192,11 @@
         var memberId = document.getElementById('member_id').value.trim();
         var password = document.getElementById('password').value.trim();
         var password1 = document.getElementById('password1').value.trim();
-        var email2 = document.getElementById('email2').value.trim();
+        var email1val = document.getElementById('email1').value.trim();
+        var email2val = document.getElementById('email2').value.trim();
         var memberName = document.querySelector("#member_name").value.trim();
-
+        var phone1 = document.getElementById('phone1').value.trim();
+        var phone2 = document.getElementById('phone2').value.trim();
         // 아이디 중복확인
 
             if (memberId === '') {
@@ -159,6 +211,10 @@
                 alert('이름을 입력하세요.');
                 return false;
             }
+            if(!vaildateName(memberName)){
+                alert('이름은 한글 5자 이하 또는 영어 10자 이하여야 합니다.');
+                return false;
+            }
         // 비밀번호 유효성 검사
             if (password === '' || password1 === '') {
                 alert('비밀번호를 입력하세요.');
@@ -171,15 +227,24 @@
             }
 
             if (!validatePassword(password)) {
-                alert('비밀번호는 영어, 숫자, 특수문자의 조합으로 8자 이상이어야 합니다.');
+                alert('비밀번호는 영어, 숫자, 특수문자의 조합으로 8자 이상 16자 이하여야 합니다.');
+                return false;
+            }
+            if(phone1.length<3 || phone2.length<3){
+                alert('올바른 연락처를 입력하세요.');
                 return false;
             }
 
-            // // 이메일 유효성 검사
-            // if (!validateEmail(email2)) {
-            //     alert('올바른 이메일 형식을 입력하세요.');
-            //     return false;
-            // }
+            // 이메일 유효성 검사
+            if (!validateEmail(email1val +'@' +email2val)) {
+                alert('올바른 이메일 형식을 입력하세요.');
+                return false;
+            }
+
+            if(!emailconfirm){
+                alert('이메일 중복확인을 해주세요.');
+                return false;
+            }
 
             return true;
         }
@@ -188,31 +253,61 @@
 
         function checkedId(){
             let checkId = memberId1.value;
-            $.ajax({
-                    url:"/member/idCheck.dox",
-                    dataType:"json",
-                    type : "POST",
-                    data : {
-                        memberId1:checkId
+            if(!vaildateId(checkId)){
+                alert('아이디는 영어 소문자 조합으로 8자 이상 12자 이하여야 합니다.');
+            }else {
+                $.ajax({
+                    url: "/member/idCheck.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        memberId1: checkId
                     },
-                    success : function(data) {
-                    if(data.result == "success") {
-                        alert(data.msg);
-                        idconfirm = true;
-                    }else{
-                        console.log("fail");
-                        alert(data.msg);
-                        idconfirm=false;
+                    success: function (data) {
+                        if (data.result == "success") {
+                            alert(data.msg);
+                            idconfirm = true;
+                        } else {
+                            console.log("fail");
+                            alert(data.msg);
+                            idconfirm = false;
+                        }
+                    },
+                    fail: function (data) {
+                        alert("실패했습니다.");
                     }
-                },
-                fail : function (data){
-                    alert("실패했습니다.");
-                }
 
-            });
+                });
+            }
         }
 
 
+    function checkedEmail(){
+
+        $.ajax({
+            url:"/member/emailCheck.dox",
+            dataType:"json",
+            type : "POST",
+            data : {
+                email1:email1.value.trim(),
+                email2:email2.value.trim()
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    alert(data.msg);
+                    emailconfirm = true;
+                }else{
+                    console.log("fail");
+                    alert(data.msg);
+                    emailconfirm=false;
+                }
+            },
+            fail : function (data){
+                alert("실패했습니다.");
+            }
+
+        });
+    }
 </script>
 </body>
 </html>

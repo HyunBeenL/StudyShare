@@ -25,21 +25,22 @@
 //
 //    @Autowired
 //    private MemberServiceImpl member;
+//
 //    @Test
-//    public void testRegist(){
+//    public void testRegist() {
 //        log.info("=====================================");
 //        log.info("MemberRepositoryTest>> start ");
-//        IntStream.rangeClosed(0,10)
-//                .forEach(i->{
+//        IntStream.rangeClosed(11, 30)
+//                .forEach(i -> {
 //                    MemberEntity member = MemberEntity.builder()
-//                            .userId("test"+i)
-//                            .user_name("테스트"+i)
-//                            .user_pwd("password"+i)
+//                            .userId("test" + i)
+//                            .user_name("테스트" + i)
+//                            .user_pwd("password" + i)
 //                            .user_phone("010")
-//                            .user_phone2("111"+i)
-//                            .user_phone3("222"+i)
-//                            .user_email1("test"+i)
-//                            .user_email2("naver.com")
+//                            .user_phone2("111" + i)
+//                            .user_phone3("222" + i)
+//                            .userEmail1("test" + i)
+//                            .userEmail2("naver.com")
 //                            .build();
 //
 //                    MemberEntity memberResult = memberRepository.save(member);
@@ -49,7 +50,7 @@
 //        log.info("=====================================");
 //
 //    }
-//
+//}
 //    @Test
 //    public void LoginTest(){
 //        log.info("=====================================");

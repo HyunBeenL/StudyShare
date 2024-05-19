@@ -1,6 +1,7 @@
 package org.fullstack4.controller;
 
 import com.google.gson.Gson;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -63,10 +64,11 @@ public class MemberController {
     }
 
     @PostMapping("/mypage")
-    public String Postmypage(MemberDTO memberDTO){
-        log.info("post start>>");
-        log.info(memberDTO.toString());
+    public String Postmypage(HttpServletRequest req, MemberDTO memberDTO, ServletResponse response){
+        HttpSession session = req.getSession();
         memberServiceImpl.modify(memberDTO);
+
+        session.invalidate();
         return "redirect:/member/login";
     }
 
@@ -176,6 +178,13 @@ public class MemberController {
             resultMap.put("responseDTO", responseDTO.toString());
             resultMap.put("idList", idList);
             resultMap.put("idxList", idxList);
+            resultMap.put("total_count",responseDTO.getTotal_count());
+            resultMap.put("page_block_size",responseDTO.getPage_block_size());
+            resultMap.put("page_block_start",responseDTO.getPage_block_start());
+            resultMap.put("page_block_end",responseDTO.getPage_block_end());
+            resultMap.put("prev_page_plag",responseDTO.isPrev_page_plag());
+            resultMap.put("next_page_plag",responseDTO.isNext_page_plag());
+            resultMap.put("page_skip_count",responseDTO.getPage_skip_count());
         }else{
             resultMap.put("result", "false");
             resultMap.put("msg","검색 결과가 없습니다.");
@@ -187,17 +196,45 @@ public class MemberController {
     @ResponseBody
     public String checkId(@RequestParam HashMap<String, Object> map, HttpServletRequest req) throws Exception{
         HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            int count = memberServiceImpl.checkId(map.get("memberId1").toString());
 
-        int count = memberServiceImpl.checkId(map.get("memberId1").toString());
-
-        if(count > 0){
+            if (count > 0) {
+                resultMap.put("result", "fail");
+                resultMap.put("msg", "이미 존재하는 아이디입니다.");
+            } else {
+                resultMap.put("result", "success");
+                resultMap.put("msg", "사용하실 수 있는 아이디입니다.");
+            }
+        }catch (InsufficientStockException e){
             resultMap.put("result", "fail");
-            resultMap.put("msg", "이미 존재하는 아이디입니다.");
-        }else{
-            resultMap.put("result", "success");
-            resultMap.put("msg", "사용하실 수 있는 아이디입니다.");
+            resultMap.put("msg", e.getMessage());
         }
 
         return new Gson().toJson(resultMap);
+    }
+
+    @RequestMapping(value = "/emailCheck.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String checkEmail(@RequestParam HashMap<String, Object> map, HttpServletRequest req) throws Exception{
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+            int count = memberServiceImpl.checkEmail(map.get("email1").toString(), map.get("email2").toString());
+
+            if (count > 0) {
+                resultMap.put("result", "fail");
+                resultMap.put("msg", "이미 존재하는 이메일입니다.");
+            } else {
+                resultMap.put("result", "success");
+                resultMap.put("msg", "사용하실 수 있는 이메일입니다.");
+            }
+        }catch(InsufficientStockException e){
+            resultMap.put("result", "fail");
+            resultMap.put("msg", e.getMessage());
+        }
+
+        return new Gson().toJson(resultMap);
+
     }
 }

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.fullstack4.common.FileUtil;
 import org.fullstack4.domain.BoardEntity;
+import org.fullstack4.domain.GoodBbsEntity;
 import org.fullstack4.dto.BoardDTO;
 import org.fullstack4.dto.PageRequestDTO;
 import org.fullstack4.dto.PageResponseDTO;
@@ -64,12 +65,17 @@ public class BoardController {
     }
 
     @GetMapping("/view")
-    public void bbsView(@RequestParam int bbsIdx, Model model){
+    public void bbsView(@RequestParam int bbsIdx, Model model,HttpServletRequest req){
+        HttpSession session = req.getSession();
+        String id = session.getAttribute("user_id").toString();
         BoardDTO boardDTO = boardService.view(bbsIdx);
         List<BoardDTO> shareList = boardService.shareList(bbsIdx);
+        boolean goodcheck = boardService.viewGood(bbsIdx,id);
+        log.info("goodcheck : {}", goodcheck);
         log.info("shareList : {}", shareList);
         model.addAttribute("shareList", shareList);
         model.addAttribute("boardDTO", boardDTO);
+        model.addAttribute("goodcheck", goodcheck);
     }
 
     @GetMapping("/modify")
@@ -83,9 +89,26 @@ public class BoardController {
     }
 
     @PostMapping("/modify")
-    public String PostBbsModify(BoardDTO boardDTO, Model model,HttpServletRequest req){
+    public String PostBbsModify(BoardDTO boardDTO, Model model,MultipartFile bbs_file1,HttpServletRequest req){
         HttpSession session = req.getSession();
+        String directory= "D:\\StudyShare\\NewProject\\src\\main\\resources\\static\\upload";
         boardDTO.setUserId(session.getAttribute("user_id").toString());
+
+        boolean filedel = req.getParameter("fileDel") == null?false:true;
+
+
+        if (bbs_file1 != null && !bbs_file1.isEmpty()) {
+            Map<String, String> map = FileUtil.FileUpload(bbs_file1, directory);
+            boardDTO.setBbs_file(map.get("newName").toString());
+            boardDTO.setFileorgname(map.get("orgName").toString());
+        }else{
+            if(!filedel){
+                if(req.getParameter("orgFileName") != null && !req.getParameter("orgFileName").isEmpty()) {
+                    boardDTO.setBbs_file(req.getParameter("orgFileName"));
+                    boardDTO.setFileorgname(req.getParameter("orgSaveFileName"));
+                }
+            }
+        }
         int idx =boardService.modify(boardDTO);
         if(idx == boardDTO.getBbsIdx()) {
             return "redirect:/bbs/view?bbsIdx=" + idx;
@@ -109,9 +132,12 @@ public class BoardController {
         String directory= "D:\\StudyShare\\NewProject\\src\\main\\resources\\static\\upload";
         HttpSession session = req.getSession();
         boardDTO.setUserId(session.getAttribute("user_id").toString());
-        Map<String, String> map = FileUtil.FileUpload(bbs_file1,directory);
-        boardDTO.setBbs_file(map.get("newName").toString());
-        boardDTO.setFileorgname(map.get("orgName").toString());
+        if(bbs_file1 !=null && !bbs_file1.isEmpty()) {
+            Map<String, String> map = FileUtil.FileUpload(bbs_file1, directory);
+            boardDTO.setBbs_file(map.get("newName").toString());
+            boardDTO.setFileorgname(map.get("orgName").toString());
+        }
+
         int idx = boardService.regist(boardDTO);
         if(idx>0) {
             return "redirect:/bbs/view?bbsIdx=" + idx;
@@ -165,6 +191,28 @@ public class BoardController {
             resultMap.put("msg", e.getMessage());
         }
 
+
+
+        return new Gson().toJson(resultMap);
+    }
+
+    @RequestMapping(value = "/bbsgood.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String bbsGood(@RequestParam HashMap<String,Object> map,HttpServletRequest req){
+        HashMap<String, Object> resultMap = new HashMap<>();
+        HttpSession session = req.getSession();
+        String id = session.getAttribute("user_id").toString();
+        int bbsIdx = Integer.parseInt(map.get("bbsIdx").toString());
+        Boolean checkYN = Boolean.valueOf(map.get("checkYN").toString());
+        if(checkYN){
+            boardService.addGood(id,bbsIdx);
+            resultMap.put("result","success");
+            resultMap.put("msg","해당글을 추천하셨습니다.");
+        }else if(!checkYN) {
+            boardService.removeGood(id, bbsIdx);
+            resultMap.put("result","success");
+            resultMap.put("msg", "취소하셨습니다.");
+        }
 
 
         return new Gson().toJson(resultMap);

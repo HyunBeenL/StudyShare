@@ -8,5 +8,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Integer>, BoardPagingSearch {
-    List<BoardEntity> findByUserIdAndBbsExposureAndBbsDuration1LessThanEqualAndBbsDuration2GreaterThanEqual(String userId, String bbsExposure, LocalDate bbsDuration1, LocalDate bbsDuration2);
+    List<BoardEntity> findByUserIdAndBbsExposureAndBbsDuration1LessThanEqualAndBbsDuration2GreaterThanEqualOrderByBbsDuration2(String userId, String bbsExposure, LocalDate bbsDuration1, LocalDate bbsDuration2);
 }

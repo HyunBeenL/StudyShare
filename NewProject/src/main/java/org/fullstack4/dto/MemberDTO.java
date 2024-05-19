@@ -19,8 +19,8 @@ public class MemberDTO {
     private String user_phone;
     private String user_phone2;
     private String user_phone3;
-    private String user_email1;
-    private String user_email2;
+    private String userEmail1;
+    private String userEmail2;
     private LocalDateTime regDate;
     private LocalDateTime modify_date;
     private int logincount;

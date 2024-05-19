@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/main.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <style>
         tr td{
             text-align: left;
@@ -40,16 +41,16 @@
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label class="form-check-label">오늘의 학습에 노출</label></td>
                                     <td>
-                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure1" value="Y"><label>노출</label>
-                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure2" value="N"><label>안 노출</label>
+                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure1" value="Y" onchange="duration(this)"><label>노출</label>
+                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure2" value="N" checked onchange="duration(this)"><label>안 노출</label>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label for="bbs_duration">노출 기간</label></td>
                                     <td>
-                                        <input type="date" class="form-control" name="bbsDuration1" id="bbs_duration">
+                                        <input type="date" class="form-control duration" name="bbsDuration1" id="bbs_duration" disabled>
                                         <span>~</span>
-                                        <input type="date" class="form-control" name="bbsDuration2" id="bbs_duration2">
+                                        <input type="date" class="form-control duration" name="bbsDuration2" id="bbs_duration2" disabled>
                                     </td>
 
                                 </tr>
@@ -145,6 +146,16 @@
         // 제목과 내용이 비어 있는지 확인
         var title = document.getElementById('title').value.trim();
         var content = document.getElementById('content').value.trim();
+        let firstduration = document.querySelector("#bbs_duration").value.trim();
+        let endduration = document.querySelector("#bbs_duration2").value.trim();
+
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        var currentDate = yyyy + '-' + mm + '-' + dd;
+
+
 
         if (title === '' || content === '') {
             alert('제목과 내용을 입력해주세요.');
@@ -163,7 +174,34 @@
             }
         }
 
+        if(document.querySelector("#bbs_duration").disabled == false) {
+            if (firstduration < currentDate || endduration < currentDate) {
+                alert("오늘 날짜 이전으론 선택하실 수 없습니다.");
+                return false;
+            }
+            if (firstduration > endduration) {
+                alert("시작일이 종료일보다 앞설 수 없습니다.")
+                return false;
+            }
+        }
+
+
         return true;
+    }
+
+    function duration(item){
+        let checkYN = item.value;
+        let duration = document.querySelector("#bbs_duration");
+        let duration2 = document.querySelector("#bbs_duration2");
+        if(checkYN == 'Y'){
+            console.log(checkYN +"::::"+duration.disabled);
+            duration.disabled = false;
+            duration2.disabled = false;
+        }else if(checkYN == 'N'){
+            console.log(checkYN +"::::"+duration.disabled);
+            duration.disabled = true;
+            duration2.disabled = true;
+        }
     }
 
 

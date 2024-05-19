@@ -25,6 +25,7 @@
                         <form action="/bbs/modify" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                             <table class="table">
                                 <input type="hidden" name="bbsIdx" th:value="${boardDTO.bbsIdx}">
+                                <input type="hidden" name="bbsGood" th:value="${boardDTO.bbsGood}">
                                 <tbody>
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label for="title">제목</label></td>
@@ -36,21 +37,27 @@
                                 </tr>
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label for="image">사진 업로드</label></td>
-                                    <td><input type="file" class="form-control" id="image" name="bbs_file" accept="image/jpeg, image/png"></td>
+                                    <td>
+                                        <span class="mb-4"><a href="#">이전 파일명 : [[${boardDTO.fileorgname}]]</a></span>
+                                        <input type="checkbox" class="form-check-input" name="fileDel"><span>이미지 삭제</span>
+                                        <input type="file" class="form-control" id="image" name="bbs_file1" accept="image/jpeg, image/png">
+                                        <input type="hidden" name="orgFileName" th:value="${boardDTO.bbs_file}">
+                                        <input type="hidden" name="orgSaveFileName" th:value="${boardDTO.fileorgname}">
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label class="form-check-label">오늘의 학습에 노출</label></td>
                                     <td>
-                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure1" value="Y" th:checked="${boardDTO.bbsExposure =='Y'}"><label>노출</label>
-                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure2" value="N" th:checked="${boardDTO.bbsExposure =='N'}"><label>안 노출</label>
+                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure1" value="Y" th:checked="${boardDTO.bbsExposure =='Y'}" onchange="duration(this)"><label>노출</label>
+                                        <input type="radio" name = "bbsExposure" class="form-check-input" id="exposure2" value="N" th:checked="${boardDTO.bbsExposure =='N'}" onchange="duration(this)"><label>안 노출</label>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label for="bbs_duration">노출 기간</label></td>
                                     <td>
-                                        <input type="date" class="form-control" name="bbsDuration1" id="bbs_duration" th:value="${boardDTO.bbsDuration1}">
+                                        <input type="date" class="form-control" name="bbsDuration1" id="bbs_duration" th:value="${boardDTO.bbsDuration1}" th:disabled="${boardDTO.bbsExposure =='N'}">
                                         <span>~</span>
-                                        <input type="date" class="form-control" name="bbsDuration2" id="bbs_duration2" th:value="${boardDTO.bbsDuration2}">
+                                        <input type="date" class="form-control" name="bbsDuration2" id="bbs_duration2" th:value="${boardDTO.bbsDuration2}" th:disabled="${boardDTO.bbsExposure =='N'}">
                                     </td>
 
                                 </tr>
@@ -145,6 +152,15 @@
         var title = document.getElementById('title').value.trim();
         var content = document.getElementById('content').value.trim();
 
+        let firstduration = document.querySelector("#bbs_duration").value.trim();
+        let endduration = document.querySelector("#bbs_duration2").value.trim();
+
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        var currentDate = yyyy + '-' + mm + '-' + dd;
+
         if (title === '' || content === '') {
             alert('제목과 내용을 입력해주세요.');
             return false;
@@ -162,7 +178,34 @@
             }
         }
 
+        if(document.querySelector("#bbs_duration").disabled == false) {
+            if (endduration < currentDate) {
+                alert("종료일은 오늘 날짜 이전으론 선택하실 수 없습니다.");
+                return false;
+            }
+            if (firstduration > endduration) {
+                alert("시작일이 종료일보다 앞설 수 없습니다.")
+                return false;
+            }
+        }
+
         return true;
+    }
+
+
+    function duration(item){
+        let checkYN = item.value;
+        let duration = document.querySelector("#bbs_duration");
+        let duration2 = document.querySelector("#bbs_duration2");
+        if(checkYN == 'Y'){
+            console.log(checkYN +"::::"+duration.disabled);
+            duration.disabled = false;
+            duration2.disabled = false;
+        }else if(checkYN == 'N'){
+            console.log(checkYN +"::::"+duration.disabled);
+            duration.disabled = true;
+            duration2.disabled = true;
+        }
     }
 </script>
 </body>

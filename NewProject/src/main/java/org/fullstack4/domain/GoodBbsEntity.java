@@ -15,6 +15,7 @@ public class GoodBbsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private int idx;
-    private int bbs_idx;
-    private String user_id;
+    private int bbsIdx;
+    @Column(name="user_id")
+    private String userId;
 }

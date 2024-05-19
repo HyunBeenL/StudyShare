@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @Log4j2
-@WebFilter(urlPatterns = {"/bbs/*","/member/mypage"} )
+@WebFilter(urlPatterns = {"/bbs/*","/member/mypage","/main"} )
 public class StudyFilter implements Filter {
 
     @Override
@@ -30,8 +30,8 @@ public class StudyFilter implements Filter {
         HttpServletRequest req =(HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession();
-
-        if(session.getAttribute("user_id") == null){
+        log.info("id:{}", session.getAttribute("user_id"));
+        if(session.getAttribute("user_id") == null || session.getAttribute("user_id").toString().trim().equals("")){
             try {
                 resp.setContentType("text/html; charset=utf-8");
                 PrintWriter w = resp.getWriter();

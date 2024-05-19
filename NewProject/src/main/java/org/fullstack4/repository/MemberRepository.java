@@ -9,6 +9,7 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer>, 
     @Query(value= "SELECT NOW()", nativeQuery = true)
     public String getNow();
     MemberEntity findByUserId(String user_id);
+    MemberEntity findByUserEmail1AndUserEmail2(String user_email1,String user_email2);
 //    int CountByUserId(String user_id);
 
 }

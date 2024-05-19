@@ -15,7 +15,7 @@ public interface MemberService {
     String findpwd(String id);
     MemberDTO view(String id);
     PageResponseDTO<MemberDTO> search(PageRequestDTO pageRequestDTO);
-    int checkId(String id);
-    int checkEmail(String email);
+    int checkId(String id) throws InsufficientStockException;
+    int checkEmail(String email1,String email2) throws InsufficientStockException;
 }
 

@@ -3,6 +3,7 @@ package org.fullstack4.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.fullstack4.domain.BoardEntity;
+import org.fullstack4.domain.GoodBbsEntity;
 import org.fullstack4.domain.MemberEntity;
 import org.fullstack4.domain.ShareBbsEntity;
 import org.fullstack4.dto.BoardDTO;
@@ -10,6 +11,7 @@ import org.fullstack4.dto.PageRequestDTO;
 import org.fullstack4.dto.PageResponseDTO;
 import org.fullstack4.exception.InsufficientStockException;
 import org.fullstack4.repository.BoardRepository;
+import org.fullstack4.repository.GoodBbsRepository;
 import org.fullstack4.repository.MemberRepository;
 import org.fullstack4.repository.ShareRepository;
 import org.modelmapper.ModelMapper;
@@ -36,6 +38,7 @@ public class BoardServiceImpl implements BoardService {
     private final ShareRepository shareRepository;
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
+    private final GoodBbsRepository goodBbsRepository;
 
 
     @Override
@@ -160,6 +163,46 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public void addGood(String id, int bbsIdx) {
+        BoardEntity boardEntity = boardRepository.findById(bbsIdx).orElse(null);
+        BoardDTO boardDTO = modelMapper.map(boardEntity, BoardDTO.class);
+        boardDTO.setBbsGood(boardDTO.getBbsGood()+1);
+        BoardEntity boardEntity1 = modelMapper.map(boardDTO, BoardEntity.class);
+        boardRepository.save(boardEntity1);
+
+        BoardDTO boardDTO1 = BoardDTO.builder()
+                .userId(id)
+                .bbsIdx(bbsIdx)
+                .build();
+        GoodBbsEntity goodBbsEntity = modelMapper.map(boardDTO1, GoodBbsEntity.class);
+        goodBbsRepository.save(goodBbsEntity);
+    }
+
+    @Override
+    public boolean viewGood(int bbsIdx, String id) {
+        GoodBbsEntity bbsEntity = goodBbsRepository.findByUserIdAndBbsIdx(id,bbsIdx);
+        log.info(bbsEntity);
+        if(bbsEntity==null){
+            return false;
+        }else{
+            return true;
+        }
+
+    }
+
+    @Override
+    public void removeGood(String id, int bbsIdx) {
+        BoardEntity boardEntity = boardRepository.findById(bbsIdx).orElse(null);
+        BoardDTO boardDTO = modelMapper.map(boardEntity, BoardDTO.class);
+        boardDTO.setBbsGood(boardDTO.getBbsGood()-1);
+        BoardEntity boardEntity1 = modelMapper.map(boardDTO, BoardEntity.class);
+        boardRepository.save(boardEntity1);
+
+        GoodBbsEntity goodBbsEntity = goodBbsRepository.findByUserIdAndBbsIdx(id, bbsIdx);
+        goodBbsRepository.delete(goodBbsEntity);
+    }
+
+    @Override
     public List<BoardDTO> shareList(int bbsIdx) {
         List<ShareBbsEntity> shareBbsEntity = shareRepository.findByBbsIdx(bbsIdx);
         List<BoardDTO> shareBbsList = shareBbsEntity.stream()
@@ -170,11 +213,18 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<BoardDTO> todayList(String userId,LocalDate date) {
-        List<BoardEntity> todayList = boardRepository.findByUserIdAndBbsExposureAndBbsDuration1LessThanEqualAndBbsDuration2GreaterThanEqual(userId, "Y", date,date);
+        List<BoardEntity> todayList = boardRepository.findByUserIdAndBbsExposureAndBbsDuration1LessThanEqualAndBbsDuration2GreaterThanEqualOrderByBbsDuration2(userId, "Y", date,date);
         log.info("todayList = {}",todayList);
-        List<BoardDTO> boardDTOList = todayList.stream()
-                .map(entity ->modelMapper.map(entity,BoardDTO.class))
-                .collect(Collectors.toList());
+
+        List<BoardDTO> boardDTOList = new ArrayList<>();
+        for(int i = 0; i<todayList.size(); i++){
+            int idx = todayList.get(i).getBbsIdx();
+            BoardEntity boardEntity = boardRepository.findById(idx).orElse(null);
+            String fileName = boardEntity.getBbs_file();
+            BoardDTO boardDTO = modelMapper.map(boardEntity, BoardDTO.class);
+            boardDTO.setBbs_file(fileName);
+            boardDTOList.add(boardDTO);
+        }
         return boardDTOList;
     }
 

@@ -24,8 +24,10 @@ public class MemberEntity extends BaseEntity{
     private String user_phone;
     private String user_phone2;
     private String user_phone3;
-    private String user_email1;
-    private String user_email2;
+    @Column(name = "user_email1")
+    private String userEmail1;
+    @Column(name = "user_email2")
+    private String userEmail2;
     @Column(name = "logincount",nullable = true,insertable = false,updatable = true)
     private int logincount;
     @Column(name = "lastlogin_date",nullable = true,insertable = false,updatable = true)

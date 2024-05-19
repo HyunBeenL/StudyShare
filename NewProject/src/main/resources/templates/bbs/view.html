@@ -21,7 +21,11 @@
                     <th colspan="2" style="background-color:#f1f6f7">제목</th>
                     <td colspan="3" th:text="${boardDTO.bbs_title}">제목입니다</td>
                     <th colspan="2" style="background-color:#f1f6f7">좋아요</th>
-                    <td th:text="${boardDTO.bbsGood}">제목입니다></td>
+                    <td>
+                        [[${boardDTO.bbsGood}]]
+                        <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off" onchange="bbsGood(this)" th:checked="${goodcheck == true}">
+                        <label class="btn btn-outline-primary" for="btncheck1">좋아요</label>
+                    </td>
                 </tr>
                 <tr>
                     <th colspan="3" style="background-color:#f1f6f7">등록일</th>
@@ -29,12 +33,22 @@
                     <th colspan="3" style="background-color:#f1f6f7">오늘의 학습 노출기간</th>
                 </tr>
                 <tr>
-                    <td colspan="3" th:text="${boardDTO.regDate}">날짜</td>
-                    <td colspan="3">Y</td>
-                    <td colspan="3">날짜2</td>
+                    <td colspan="3" th:text="${boardDTO.regDate}"></td>
+                    <td colspan="3">[[${boardDTO.bbsExposure}]]</td>
+                    <th:block th:if="${boardDTO.bbsDuration1 != null}">
+                        <td colspan="3">[[${boardDTO.bbsDuration1 +' ~ '+ boardDTO.bbsDuration2}]]</td>
+                    </th:block>
+                    <th:block th:if="${boardDTO.bbsDuration1 == null}">
+                        <td colspan="3"></td>
+                    </th:block>
                 </tr>
                 <tr>
-                    <td colspan="4" style="height:600px; position: relative;"><img th:src="'/upload/'+${boardDTO.bbs_file}" alt="대체 이미지" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></td>
+                    <th:block th:if="${boardDTO.bbs_file != null && boardDTO.bbs_file !=''}">
+                        <td colspan="4" style="height:600px; position: relative;"><img th:src="'/upload/'+${boardDTO.bbs_file}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></td>
+                    </th:block>
+                    <th:block th:if="${boardDTO.bbs_file == null || boardDTO.bbs_file ==''}">
+                        <td colspan="4" style="height:600px; position: relative;"><img src="/upload/default.png" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></td>
+                    </th:block>
                     <td colspan="6"><div><div class=""><p th:text="${boardDTO.bbs_content}"></p><p><br></p></div></div></td>
                 </tr>
                 <tr>
@@ -68,7 +82,7 @@
                 </tr>
                 </tbody>
             </table>
-            <div class="d-flex justify-content-end">
+            <div class="d-flex justify-content-end mt-5">
                 <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/list'" style="width:80px;">목록</button>
                 <th:block th:if="${boardDTO.userId == session.user_id}">
                 <button class="btn btn-sm btn-outline-success me-2" onclick="location.href='/bbs/regist'" style="width:80px;">등록</button>
@@ -76,6 +90,7 @@
                 <button class="btn btn-sm btn-outline-success me-2" th:onclick="bbs_delete()" style="width:80px;">삭제</button>
                 </th:block>
             </div>
+
         </div>
     </section>
 
@@ -90,7 +105,7 @@
                 <div class="modal-body">
                     <form>
                     <input type="text" name="idsearch" id="idsearch" maxlength="20">
-                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="popover" title="Popover title" onclick="search()">검색하기</button>
+                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="popover" title="Popover title" onclick="search(0)">검색하기</button>
                     </form>
                     <hr>
                     <h2 class="fs-5">검색 결과</h2>
@@ -132,7 +147,7 @@
         }
     }
 
-    function search(){
+    function search(page){
         let id = document.querySelector("#idsearch");
         let searchList = document.querySelector("#searchList");
         $.ajax({
@@ -141,18 +156,56 @@
             type : "POST",
             data : {
                 search_word:id.value,
-                page :0
+                page :page
             },
             success : function(data) {
                 if(data.result == "success") {
-                    alert(data.msg);
-                    console.log(data.responseDTO);
                     let idxList = data.idxList;
                     let idList = data.idList;
                     let parsing ="";
                     for(let i = 0; i<idList.length; i++){
-                        parsing +="<li><input type='checkbox' value="+idList[i]+" class='choice' name='response_id'>"+ idList[i]+"</li>";
+                        parsing +="<div class=\"form-check\">\n" +
+                            "  <input class=\"form-check-input choice\" type=\"checkbox\" name=\"response_id\" value="+idList[i]+">\n" +
+                            "  <label class=\"form-check-label\" >\n" +
+                             idList[i]  +
+                            "  </label>\n" +
+                            "</div>";
+                        // parsing +="<li><input type='checkbox' value="+idList[i]+" class='choice' name='response_id'>"+ idList[i]+"</li>";
                     }
+                    parsing +="<nav aria-label=\"Page navigation example\">\n" +
+                        "                <ul class=\"pagination justify-content-center\">\n" ;
+                    if(data.prev_page_plag == false){
+                        parsing += "                        <li class=\"page-item disabled\">\n" ;
+                    }else{
+                        parsing +="                        <li class=\"page-item\">\n" ;
+                    }
+
+                    parsing+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start-6)+")\"+ aria-label=\"Previous\">\n" +
+                        "                            <span aria-hidden=\"true\">&laquo;</span>\n" +
+                        "                        </button>\n" +
+                        "                    </li>\n" ;
+
+                    for(let i =data.page_block_start; i<=data.page_block_end; i++){
+                        if(page == i-1) {
+                            parsing += "<li class =\"page-item active\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
+                        }else{
+                            parsing += "<li class =\"page-item\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
+                        }
+                    }
+
+                    if(data.next_page_plag == false){
+                        parsing += "                        <li class=\"page-item disabled\">\n" ;
+                    }else{
+                        parsing +="                        <li class=\"page-item\">\n" ;
+                    }
+
+                    parsing+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start+4)+")\"+ aria-label=\"Next\">\n" +
+                        "                            <span aria-hidden=\"true\">&raquo;</span>\n" +
+                        "                        </button>\n" +
+                        "                    </li>\n" +
+                        "                </ul>\n" +
+                        "            </nav>";
+
                     searchList.innerHTML = parsing;
                 }else{
                     alert(data.msg);
@@ -221,11 +274,32 @@
         });
     }
 
-</script>
-<script>
-    function openmodal(){
+    function bbsGood(item){
+        let check = item.checked;
+        $.ajax({
+            url:"/bbs/bbsgood.dox",
+            dataType:"json",
+            type : "POST",
+            data : {
+                checkYN:check,
+                bbsIdx : idx
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    alert(data.msg);
+                    location.replace("/bbs/view?bbsIdx="+idx);
+                }else{
+                    alert(data.msg);
+                }
 
+            },
+            fail : function (data){
+                alert("실패했습니다.");
+            }
+
+        });
     }
+
 </script>
 </body>
 </html>

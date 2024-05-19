@@ -27,6 +27,8 @@ public class MyFilterConfig {
         registrationBean.setFilter(new StudyFilter());
         registrationBean.addUrlPatterns("/bbs/*"); // 필터를 적용할 URL 패턴 지정
         registrationBean.addUrlPatterns("/member/mypage");
+        registrationBean.addUrlPatterns("/main");
+        registrationBean.addUrlPatterns("/");
         registrationBean.setOrder(2); // 필터의 순서 지정
         return registrationBean;
     }

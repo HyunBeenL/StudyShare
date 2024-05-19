@@ -37,30 +37,30 @@
                                 </span>
                             <div class="col-md-4 mb-4">
                                 <select class="form-control" name="user_phone">
-                                    <option value="010">010</option>
-                                    <option value="011">011</option>
-                                    <option value="016">016</option>
-                                    <option value="017">017</option>
-                                    <option value="018">018</option>
-                                    <option value="019">019</option>
+                                    <option value="010" th:selected="${memberDTO.user_phone} == '010'">010</option>
+                                    <option value="011" th:selected="${memberDTO.user_phone} == '011'">011</option>
+                                    <option value="016" th:selected="${memberDTO.user_phone} == '016'">016</option>
+                                    <option value="017" th:selected="${memberDTO.user_phone} == '017'">017</option>
+                                    <option value="018" th:selected="${memberDTO.user_phone} == '018'">018</option>
+                                    <option value="019" th:selected="${memberDTO.user_phone} == '019'">019</option>
                                 </select>
                             </div>
                             <div class="col-md-1">-</div>
                             <div class="col-md-3 mb-4">
-                                <input type="text" class="form-control" id="phone1" data-name="전화번호1" name="user_phone2" th:value="${memberDTO.user_phone2}">
+                                <input type="text" class="form-control" id="phone1" data-name="전화번호1" name="user_phone2" th:value="${memberDTO.user_phone2}" maxlength="4">
                             </div>
                             <div class="col-md-1">-</div>
                             <div class="col-md-3 mb-4">
-                                <input type="text" class="form-control" id="phone2" data-name="전화번호2" name="user_phone3" th:value="${memberDTO.user_phone3}">
+                                <input type="text" class="form-control" id="phone2" data-name="전화번호2" name="user_phone3" th:value="${memberDTO.user_phone3}" maxlength="4">
                             </div>
                             <div class="col-md-12 mb-4 input-group mb-3">
-                                <input type="text" class="form-control input-group" id="email1" data-name="이메일" name="user_email1" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'" th:value="${memberDTO.user_email1}">
-                                <button class="btn btn-outline-secondary" type="button" id="EmailCheckBtn">중복확인</button>
+                                <input type="text" class="form-control input-group" id="email1" data-name="이메일" name="userEmail1" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'" th:value="${memberDTO.userEmail1}">
+                                <button class="btn btn-outline-secondary" type="button" id="EmailCheckBtn" onclick="checkedEmail()">중복확인</button>
                             </div>
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="basic-addon1">@</span>
                                 <select class="form-control" aria-describedby="basic-addon1" id="emailChoice" onchange="emailchange(this)">
-                                    <option name="" th:value="${memberDTO.user_email2}" selected>현재 이메일 유지</option>
+                                    <option name="" th:value="${memberDTO.userEmail2}" selected>현재 이메일 유지</option>
                                     <option name="" value="naver.com">naver.com</option>
                                     <option name="" value="daum.net">daum.net</option>
                                     <option name="" value="hanmail.net">hanmail.net</option>
@@ -70,7 +70,7 @@
                                 </select>
                             </div>
                             <div class="col-md-12 mb-4">
-                                <input type="text" class="form-control" id="email2" data-name="이메일2" name="user_email2" placeholder="직접 입력" onfocus="this.placeholder = ''" onblur="this.placeholder = '직접 입력'" th:value="${memberDTO.user_email2}" readonly>
+                                <input type="text" class="form-control" id="email2" data-name="이메일2" name="userEmail2" placeholder="직접 입력" onfocus="this.placeholder = ''" onblur="this.placeholder = '직접 입력'" th:value="${memberDTO.userEmail2}" readonly>
                             </div>
 
                             <div id="err_login" class="text-danger text-center col-md-12">
@@ -89,6 +89,20 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    function allowOnlyNumbers(event) {
+        // 입력된 값
+        var inputValue = event.target.value;
+        // 입력된 값이 숫자가 아니면
+        if (isNaN(inputValue)) {
+            // 숫자가 아닌 문자를 제거하고 숫자만 남기기
+            event.target.value = inputValue.replace(/[^\d]/g, '');
+        }
+    }
+
+    // 전화번호 입력란의 입력 이벤트 감지
+    document.getElementById('phone1').addEventListener('input', allowOnlyNumbers);
+    document.getElementById('phone2').addEventListener('input', allowOnlyNumbers);
+
     function emailchange(item){
         let email2 = document.querySelector("#email2");
         let val = item.value;
@@ -100,6 +114,137 @@
         }else{
             email2.readOnly = true;
         }
+    }
+
+    let memberId1 = document.querySelector("#member_id");
+    let email1 = document.querySelector("#email1");
+    let email2 = document.querySelector("#email2");
+
+    let idconfirm = false;
+    let emailconfirm = false;
+
+    memberId1.addEventListener('keypress', ()=>{
+        idconfirm = false;
+    });
+    memberId1.addEventListener('keyup', ()=>{
+        idconfirm = false;
+    });
+    email1.addEventListener('onchange', ()=>{
+        emailconfirm = false;
+    });
+
+    email2.addEventListener('keypress', ()=>{
+        emailconfirm = false;
+    });
+    email2.addEventListener('keyup', ()=>{
+        emailconfirm = false;
+    });
+
+    function emailchange(item) {
+
+        let val = item.value;
+        email2.value = val;
+        console.log(val);
+        console.log(email2.readOnly);
+        if (val == "") {
+            email2.readOnly = false;
+        } else {
+            email2.readOnly = true;
+        }
+    }
+
+
+    // 비밀번호 규칙 검사 함수
+    function validatePassword(password) {
+        var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/;
+
+        if (!passwordPattern.test(password)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // 이메일 형식 검사 함수
+    function validateEmail(email) {
+        var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailPattern.test(email)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // 폼 유효성 검사 함수
+    function validateForm() {
+        var password = document.getElementById('password').value.trim();
+        var password1 = document.getElementById('password1').value.trim();
+        var email1val = document.getElementById('email1').value.trim();
+        var email2val = document.getElementById('email2').value.trim();
+        var memberName = document.querySelector("#member_name").value.trim();
+
+        if(memberName === ''){
+            alert('이름을 입력하세요.');
+            return false;
+        }
+        // 비밀번호 유효성 검사
+        if (password === '' || password1 === '') {
+            alert('비밀번호를 입력하세요.');
+            return false;
+        }
+
+        if (password !== password1) {
+            alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+            return false;
+        }
+
+        if (!validatePassword(password)) {
+            alert('비밀번호는 영어, 숫자, 특수문자의 조합으로 8자 이상이어야 합니다.');
+            return false;
+        }
+
+        // 이메일 유효성 검사
+        if (!validateEmail(email1val +'@' +email2val)) {
+            alert('올바른 이메일 형식을 입력하세요.');
+            return false;
+        }
+
+        if(!emailconfirm){
+            alert('이메일 중복확인을 해주세요.');
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+    function checkedEmail(){
+
+        $.ajax({
+            url:"/member/emailCheck.dox",
+            dataType:"json",
+            type : "POST",
+            data : {
+                email1:email1.value.trim(),
+                email2:email2.value.trim()
+            },
+            success : function(data) {
+                if(data.result == "success") {
+                    alert(data.msg);
+                    emailconfirm = true;
+                }else{
+                    console.log("fail");
+                    alert(data.msg);
+                    emailconfirm=false;
+                }
+            },
+            fail : function (data){
+                alert("실패했습니다.");
+            }
+
+        });
     }
 </script>
 </body>
