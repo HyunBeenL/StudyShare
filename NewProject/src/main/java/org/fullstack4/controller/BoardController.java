@@ -48,6 +48,8 @@ public class BoardController {
 
         PageResponseDTO<BoardDTO> responseDTO = boardService.bbsListByPage(pageRequestDTO);
         log.info("responseDTO : {}", responseDTO);
+        String sort = responseDTO.getSort_type() == null?"":"&sort_type="+responseDTO.getSort_type();
+        model.addAttribute("sort", sort);
         model.addAttribute("responseDTO", responseDTO);
 
 
@@ -60,6 +62,8 @@ public class BoardController {
         pageRequestDTO.setUser_id(user_id);
         PageResponseDTO<BoardDTO> dto = boardService.shareBbsListByPage(pageRequestDTO);
         log.info("responseDTO : {}", dto);
+        String sort = dto.getSort_type() == null?"":"&sort_type="+dto.getSort_type();
+        model.addAttribute("sort", sort);
         model.addAttribute("responseDTO", dto);
 
     }

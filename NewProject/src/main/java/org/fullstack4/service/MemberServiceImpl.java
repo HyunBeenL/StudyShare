@@ -130,6 +130,12 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public String findemail(String id) {
+        String email = memberRepository.findByUserId(id).getUserEmail1()+"@"+memberRepository.findByUserId(id).getUserEmail2();
+        return email;
+    }
+
+    @Override
     public String findpwd(String id) {
         String pwd = memberRepository.findByUserId(id).getUser_pwd();
         return pwd;

@@ -3,7 +3,9 @@ package org.fullstack4.common;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CookieUtil {
     public static void setCookies(HttpServletResponse resp, String domain, String path, int eixpire, String name, String val) {
         Cookie cookie = new Cookie(name,val);
@@ -28,6 +30,6 @@ public class CookieUtil {
     }
 
     public static void setDeleteCookie(HttpServletResponse resp,String name) {
-        setCookies(resp, "", "/PersonalProject/sample/jsp/", 0, name, "");
+        setCookies(resp, "", "/", 0, name, "");
     }
 }

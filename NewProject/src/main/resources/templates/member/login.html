@@ -21,7 +21,7 @@
                         <form class="row login_form mb-5" method="post" action="/member/login.dox" name="frmLogin" >
                             <input type="hidden" name="acc_url" value="/">
                             <div class="col-md-8 mb-4">
-                                <input type="text" class="form-control" id="member_id" name="user_id" data-name="아이디" placeholder="아이디" onfocus="this.placeholder = ''" onblur="this.placeholder = '아이디'">
+                                <input type="text" class="form-control" id="member_id" name="user_id" data-name="아이디" placeholder="아이디" onfocus="this.placeholder = ''" onblur="this.placeholder = '아이디'" th:value="${saveid}">
                             </div>
                             <div class="col-md-4">
                                 <button type="button" id="loginbtn" style="height:170%;width:100%" class="btn btn-outline-success" onclick="login()">로그인 </button>
@@ -34,7 +34,7 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <div class="creat_account">
-                                    <input type="checkbox" id="save_id" name="save_id">
+                                    <input type="checkbox" id="save_id" name="save_id" th:checked="${saveid != ''}">
                                     <label for="save_id">아이디 저장</label>
                                 </div>
                             </div>

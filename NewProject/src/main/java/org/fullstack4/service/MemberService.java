@@ -12,6 +12,7 @@ public interface MemberService {
     void modify(MemberDTO memberDTO);
     int pwdmodify(String id, String pwd);
     void delete(String id);
+    String findemail(String id);
     String findpwd(String id);
     MemberDTO view(String id);
     PageResponseDTO<MemberDTO> search(PageRequestDTO pageRequestDTO);

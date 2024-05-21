@@ -11,6 +11,13 @@
         tr td{
             text-align: left;
         }
+        main #postsubImg {
+            width: 100px; height: 100px; opacity: 0.0; position: fixed;
+        }
+        main #postsubImg .imgList{
+            width: 400px; height: 600px; border: 1px solid black;
+
+        }
     </style>
 </head>
 <body>
@@ -38,7 +45,15 @@
                                 <tr>
                                     <td class="table-secondary" style="width: 20%;"><label for="image">사진 업로드</label></td>
                                     <td>
-                                        <span class="mb-4"><a href="#">이전 파일명 : [[${boardDTO.fileorgname}]]</a></span>
+                                        <th:block th:if="${boardDTO.fileorgname} != null">
+                                            <span class="mb-4"><span>이전 파일명 : </span><a href="#" class="beforeFile">[[${boardDTO.fileorgname}]]</a></span>
+                                        </th:block>
+                                        <th:block th:if="${boardDTO.fileorgname} == null">
+                                            <span class="mb-4"><span>이전 파일명 : </span><a href="#" class="beforeFile">등록된 파일이 없습니다.</a></span>
+                                        </th:block>
+                                        <div id="postsubImg">
+                                            <img class="imgList" src="" alt="">
+                                        </div>
                                         <input type="checkbox" class="form-check-input" name="fileDel"><span>이미지 삭제</span>
                                         <input type="file" class="form-control" id="image" name="bbs_file1" accept="image/jpeg, image/png">
                                         <input type="hidden" name="orgFileName" th:value="${boardDTO.bbs_file}">
@@ -88,7 +103,7 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            <button type="submit" class="btn btn-sm btn-outline-success">게시</button>
+                            <button type="submit" class="btn btn-sm btn-outline-success">수정 하기</button>
                         </form>
                     </div>
                 </div>
@@ -203,10 +218,35 @@
             duration2.disabled = false;
         }else if(checkYN == 'N'){
             console.log(checkYN +"::::"+duration.disabled);
+            duration.value = "";
+            duration2.value = "";
             duration.disabled = true;
             duration2.disabled = true;
         }
     }
+
+    let postsubImg = document.getElementById("postsubImg");
+    let imgList = document.querySelector(".imgList");
+    document.querySelector(".beforeFile").addEventListener('mousemove',(event)=>{
+        let img = "[[${boardDTO.bbs_file}]]";
+        let imgurl = "";
+
+        if(img != "") {
+            imgurl += '/upload/' + img;
+        }else{
+            imgurl += '/upload/default.png';
+        }
+        imgList.setAttribute("src",imgurl);
+        postsubImg.style.display = "block";
+        postsubImg.style.opacity = 1;
+        postsubImg.style.left = event.clientX-500 + "px";
+        postsubImg.style.top = event.clientY-150 + "px";
+
+    },true);
+    document.querySelector(".beforeFile").addEventListener('mouseout',()=>{
+        postsubImg.style.display = "none";
+
+    });
 </script>
 </body>
 </html>

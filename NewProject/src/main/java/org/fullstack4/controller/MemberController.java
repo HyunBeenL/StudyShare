@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.fullstack4.common.CookieUtil;
 import org.fullstack4.dto.MemberDTO;
 import org.fullstack4.dto.PageRequestDTO;
 import org.fullstack4.dto.PageResponseDTO;
 import org.fullstack4.exception.InsufficientStockException;
 import org.fullstack4.repository.MemberRepository;
+import org.fullstack4.service.EmailService;
 import org.fullstack4.service.MemberServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,20 +31,28 @@ import java.util.HashMap;
 @Controller
 public class MemberController {
     private final MemberServiceImpl memberServiceImpl;
+    private final EmailService emailService;
 
     @GetMapping("/login")
-    public void login(){
-
+    public void login(Model model,HttpServletRequest req){
+        String saveid = CookieUtil.getCookieValue(req,"user_id")==null?"":CookieUtil.getCookieValue(req,"user_id");
+        model.addAttribute("saveid", saveid);
     }
 
     @RequestMapping(value = "/login.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public String Login(@RequestParam HashMap<String, Object> map, HttpServletRequest req) throws Exception{
+    public String Login(@RequestParam HashMap<String, Object> map, HttpServletRequest req,HttpServletResponse resp) throws Exception{
         HashMap<String, Object> resultMap = new HashMap<>();
         String id = req.getParameter("user_id").trim();
         String pwd = req.getParameter("pwd").trim();
+        boolean save_id = req.getParameter("save_id") ==null?false:true;
         try {
             if (memberServiceImpl.login(id, pwd, req)) {
+                if(save_id){
+                    CookieUtil.setCookies(resp,"","",50000,"user_id",id);
+                }else{
+                    CookieUtil.setDeleteCookie(resp,"user_id");
+                }
                 resultMap.put("result", "success");
                 resultMap.put("msg","성공적으로 로그인되었습니다.");
             } else {
@@ -103,11 +113,32 @@ public class MemberController {
         HashMap<String, Object> resultMap = new HashMap<>();
         HttpSession session = req.getSession();
         String id = req.getParameter("user_id");
+        String email = memberServiceImpl.findemail(id);
+        String authCode = emailService.sendEmail(email);
+        log.info("임시 비번:" +authCode);
+        int idx = memberServiceImpl.pwdmodify(id,authCode);
+        if(authCode != null && idx>0){
+            log.info("임시 비번:" +authCode);
+            resultMap.put("result", "success");
+            resultMap.put("msg","등록하신 이메일로 임시 비밀번호를 전송했습니다.");
+
+        }else{
+            resultMap.put("result", "false");
+        }
+        return new Gson().toJson(resultMap);
+    }
+
+    @RequestMapping(value = "/findpwd1.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String Findpwd1(@RequestParam HashMap<String, Object> map, HttpServletRequest req) throws Exception{
+        HashMap<String, Object> resultMap = new HashMap<>();
+        HttpSession session = req.getSession();
+        String id = req.getParameter("user_id");
         String pwd = memberServiceImpl.findpwd(id);
         if(pwd != null){
             resultMap.put("result", "success");
-            resultMap.put("msg", pwd);
-            resultMap.put("pwd", pwd);
+            resultMap.put("pwd",pwd);
+
         }else{
             resultMap.put("result", "false");
         }
@@ -162,14 +193,16 @@ public class MemberController {
         log.info("responseDTO : {}", responseDTO);
         ArrayList<String> idList = new ArrayList<>();
         ArrayList<Integer> idxList = new ArrayList<>();
+        ArrayList<String> nameList = new ArrayList<>();
         if(responseDTO.getDtolist().size()>0) {
             for(int i=0; i<responseDTO.getDtolist().size(); i++) {
                 idList.add(responseDTO.getDtolist().get(i).getUserId());
                 idxList.add(responseDTO.getDtolist().get(i).getUser_idx());
-
+                nameList.add(responseDTO.getDtolist().get(i).getUser_name());
             }
 
         }
+        log.info("nameList:{}",nameList.toString());
         HttpSession session = req.getSession();
         String id = req.getParameter("user_id");
         if(responseDTO.getDtolist().size()>0){
@@ -178,6 +211,7 @@ public class MemberController {
             resultMap.put("responseDTO", responseDTO.toString());
             resultMap.put("idList", idList);
             resultMap.put("idxList", idxList);
+            resultMap.put("nameList", nameList);
             resultMap.put("total_count",responseDTO.getTotal_count());
             resultMap.put("page_block_size",responseDTO.getPage_block_size());
             resultMap.put("page_block_start",responseDTO.getPage_block_start());

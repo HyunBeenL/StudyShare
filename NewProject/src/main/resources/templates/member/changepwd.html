@@ -21,14 +21,14 @@
                         <form class="row login_form mb-5 mt-5" method="post" action="/member/changepwd" id="frmLogin" onsubmit="return validateForm()">
                             <input type="hidden" name="user_id" th:value="${id}">
                             <div class="col-md-12 mb-4">
-                                <input type="password" class="form-control" id="password1" name="password1" data-name="이전 패스워드" placeholder="이전 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '이전 패스워드'" onkeyup="myPwdCheck()">
+                                <input type="password" class="form-control" id="password1" name="password1" data-name="이전 패스워드" placeholder="임시 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '이전 패스워드'" onkeyup="myPwdCheck()">
                             </div>
                             <div class="col-md-12 mb-4">
-                                <input type="password" class="form-control" id="newpassword" name="newpassword" data-name="새 패스워드" placeholder="새 패스워드" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 패스워드'">
+                                <input type="password" class="form-control" id="newpassword" name="newpassword" data-name="새 패스워드" placeholder="새 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 패스워드'">
                                 <span class="txtSub" id="pwderr"></span>
                             </div>
                             <div class="col-md-12 mb-4">
-                                <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" data-name="패스워드 확인" placeholder="패스워드 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '패스워드 확인'">
+                                <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" data-name="패스워드 확인" placeholder="비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '패스워드 확인'">
                                 <span class="txtSub" id="pwdequal"></span>
                             </div>
                             <div class="col-md-6 mt-5">
@@ -119,7 +119,7 @@
 
     function myPwdCheck(){
         $.ajax({
-            url:"/member/findpwd.dox?user_id="+myId,
+            url:"/member/findpwd1.dox?user_id="+myId,
             dataType:"json",
             type : "POST",
             data : {

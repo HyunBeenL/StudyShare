@@ -27,6 +27,7 @@ public class MemberSearchImpl extends QuerydslRepositorySupport implements Membe
         if ((search_keyword != null && search_keyword.length() > 0)) {
             // type : t(제목), c(내용), u(사용자아이디)
             booleanBuilder.or(qMember.userId.like("%" + search_keyword + "%"));
+            booleanBuilder.or(qMember.user_name.like("%" + search_keyword + "%"));
         }
         query.where(booleanBuilder);
         this.getQuerydsl().applyPagination(pageable, query);

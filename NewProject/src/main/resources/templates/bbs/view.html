@@ -103,14 +103,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
                     <input type="text" name="idsearch" id="idsearch" maxlength="20">
                     <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="popover" title="Popover title" onclick="search(0)">검색하기</button>
-                    </form>
                     <hr>
                     <h2 class="fs-5">검색 결과</h2>
-                    <ul class="member-list" id="searchList">
-                    </ul>
+                    <table class="table" id="searchList">
+                    </table>
+                    <nav aria-label="Page navigation example" class="paginglist">
+                    </nav>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
@@ -150,6 +150,7 @@
     function search(page){
         let id = document.querySelector("#idsearch");
         let searchList = document.querySelector("#searchList");
+        let pagingList = document.querySelector(".paginglist");
         $.ajax({
             url:"/member/searchId.dox",
             dataType:"json",
@@ -162,44 +163,59 @@
                 if(data.result == "success") {
                     let idxList = data.idxList;
                     let idList = data.idList;
-                    let parsing ="";
-                    for(let i = 0; i<idList.length; i++){
-                        parsing +="<div class=\"form-check\">\n" +
-                            "  <input class=\"form-check-input choice\" type=\"checkbox\" name=\"response_id\" value="+idList[i]+">\n" +
+                    let nameList = data.nameList;
+                    let parsing ="<thead>\n" +
+                        "<tr>\n" +
+                        "<th scope=\"col\" class=\"bg-geni-dark text-dark\">#</th>\n" +
+                        "<th scope=\"col\" class=\"bg-geni-dark text-dark\">아이디</th>\n" +
+                        "<th scope=\"col\" class=\"bg-geni-dark text-dark\">이름</th>\n" +
+                        "</tr>\n" +
+                        "</thead>";
+                    for(let i = 0; i<idList.length; i++) {
+                        parsing +=
+                            // "<div class=\"form-check\">\n" +
+                            "<tr>"+
+                            "<th scope=\"row\">"+
+                            "  <input class=\"form-check-input lg-checkbox choice\" type=\"checkbox\" name=\"response_id\" value="+idList[i]+">" +
+                            "</th>" +
+                            "<td>"+
                             "  <label class=\"form-check-label\" >\n" +
                              idList[i]  +
                             "  </label>\n" +
-                            "</div>";
+                            "</td>"+
+                            "<td>"+nameList[i]+"</td>"+
+                            // "</div>"+
+                            "</tr>";
                         // parsing +="<li><input type='checkbox' value="+idList[i]+" class='choice' name='response_id'>"+ idList[i]+"</li>";
                     }
-                    parsing +="<nav aria-label=\"Page navigation example\">\n" +
-                        "                <ul class=\"pagination justify-content-center\">\n" ;
+                    let parsing1 = "";
+                    parsing1 += "                <ul class=\"pagination justify-content-center\">\n" ;
                     if(data.prev_page_plag == false){
-                        parsing += "                        <li class=\"page-item disabled\">\n" ;
+                        parsing1 += "                        <li class=\"page-item disabled\">\n" ;
                     }else{
-                        parsing +="                        <li class=\"page-item\">\n" ;
+                        parsing1 +="                        <li class=\"page-item\">\n" ;
                     }
 
-                    parsing+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start-6)+")\"+ aria-label=\"Previous\">\n" +
+                    parsing1+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start-6)+")\"+ aria-label=\"Previous\">\n" +
                         "                            <span aria-hidden=\"true\">&laquo;</span>\n" +
                         "                        </button>\n" +
                         "                    </li>\n" ;
 
                     for(let i =data.page_block_start; i<=data.page_block_end; i++){
                         if(page == i-1) {
-                            parsing += "<li class =\"page-item active\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
+                            parsing1 += "<li class =\"page-item active\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
                         }else{
-                            parsing += "<li class =\"page-item\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
+                            parsing1 += "<li class =\"page-item\"><button class=\"page-link\" onclick=\"search(" + (i - 1) + ")\">" + i + "</button></li>\n";
                         }
                     }
 
                     if(data.next_page_plag == false){
-                        parsing += "                        <li class=\"page-item disabled\">\n" ;
+                        parsing1 += "                        <li class=\"page-item disabled\">\n" ;
                     }else{
-                        parsing +="                        <li class=\"page-item\">\n" ;
+                        parsing1 +="                        <li class=\"page-item\">\n" ;
                     }
 
-                    parsing+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start+4)+")\"+ aria-label=\"Next\">\n" +
+                    parsing1+=    "                        <button class=\"page-link\" onclick=\"search("+(data.page_block_start+4)+")\"+ aria-label=\"Next\">\n" +
                         "                            <span aria-hidden=\"true\">&raquo;</span>\n" +
                         "                        </button>\n" +
                         "                    </li>\n" +
@@ -207,6 +223,7 @@
                         "            </nav>";
 
                     searchList.innerHTML = parsing;
+                    pagingList.innerHTML = parsing1;
                 }else{
                     alert(data.msg);
                 }

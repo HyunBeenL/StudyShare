@@ -59,6 +59,7 @@ dependencies {
 	implementation 'org.modelmapper:modelmapper:3.2.0'
 	// https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
 	implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.2.5.Final'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {

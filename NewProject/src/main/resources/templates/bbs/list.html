@@ -33,10 +33,8 @@
                         </select>
                         <span class="input-group-text">검색어</span>
                         <input type="text" class="form-control" name="search_word">
+                        <button class="btn btn-sm btn-outline-secondary mw-2" type="submit">검색</button>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-sm btn-outline-secondary mw-2" type="submit">검색</button>
                 </div>
                 </form>
                 <div class="d-flex">
@@ -100,16 +98,16 @@
                     <th:block th:if="${responseDTO.prev_page_plag == true}">
                         <li class="page-item">
                     </th:block>
-                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}-10)+${responseDTO.linkParams}" aria-label="Previous">
+                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}-10)+${sort}+${responseDTO.linkParams}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     <th:block th:each="number : ${#numbers.sequence(responseDTO.page_block_start, responseDTO.page_block_end)}">
                         <th:block th:if="(${number}-1) == ${responseDTO.page}">
-                            <li class="page-item active"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                            <li class="page-item active"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${sort}+${responseDTO.linkParams}" th:text="${number}"></a></li>
                         </th:block>
                         <th:block th:if="(${number}-1) != ${responseDTO.page}">
-                            <li class="page-item"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${responseDTO.linkParams}" th:text="${number}"></a></li>
+                            <li class="page-item"><a class="page-link" th:href="'/bbs/list?page='+(${number}-1)+${sort}+${responseDTO.linkParams}" th:text="${number}"></a></li>
                         </th:block>
                     </th:block>
                     <th:block th:if="${responseDTO.next_page_plag == false}">
@@ -118,7 +116,7 @@
                     <th:block th:if="${responseDTO.next_page_plag == true}">
                         <li class="page-item">
                     </th:block>
-                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}+10)+${responseDTO.linkParams}" aria-label="Next">
+                        <a class="page-link" th:href="'/bbs/list?page='+(${responseDTO.page_block_start}+10)+${sort}+${responseDTO.linkParams}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -135,9 +133,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     var link = [[${responseDTO.linkParams}]];
+    var sortType = [[${responseDTO.sort_type}]];
      function changePageSize(item){
          let pageSize= item.value;
-         let url = '/bbs/list?page=0&page_size=' + pageSize + link;
+         let url = "";
+         if(sortType === null){
+             url += '/bbs/list?page=0&page_size=' + pageSize + link;
+         }else{
+             url += '/bbs/list?page=0&page_size=' + pageSize + link+"&sort_type="+sortType;
+         }
          location.href=url;
      }
 
